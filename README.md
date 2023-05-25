@@ -3,7 +3,7 @@
 Code to generate 3D strike- and dip-variable faults from surface traces, and associated slip distributions, for use in Coulomb 3.4. 
 
 Code is free to use for research purposes, please cite the following paper:\
-Diercks, M., Mildon, Z., Boulton, S., Hussain, E. (pre-print, in review): [Constraining historical earthquake sequences with Coulomb stress models. JGR Solid Earth]
+Diercks, M., Mildon, Z., Boulton, S., Hussain, E. (pre-print, in review): [Constraining historical earthquake sequences with Coulomb stress models: an example from Western Turkey. JGR Solid Earth]
 https://doi.org/10.22541/essoar.168057577.71492202/v1
 Please cite the peer-reviewed version when published.
 
