@@ -1,6 +1,6 @@
 variable,value
 slip_at_surface,40
-maximum_slip,3.5
+maximum_slip,1.0
 seismo_depth,18
 rupture_depth,18
 intersect_threshold,1

@@ -11,7 +11,7 @@ end
 if rb_shp.Value == true %shapefile
         disp('Choose a .shp file')
         [file,path] = uigetfile('*.shp','Choose a .shp file');
-        fault_input = struct2table(shaperead(fullfile(path,file)));
+        fault_input = struct2table(shaperead(fullfile(path,file)),'AsArray',true);
         if iscell(fault_input.dip) == true
             fault_input.dip = num2cell(str2double(fault_input.dip));
         else
@@ -66,17 +66,21 @@ elseif rb_kmz.Value == true %kmz file
 end
 close(imp_fig)
 %% check data and configure input table
+%convert to cell if required
 if iscell(fault_input.Y) == false
     Y = cell(length(fault_input.Y),1);
     X = cell(length(fault_input.X),1);
-    for i = 1:length(fault_input.Y)
-        Y{i} = fault_input.Y(i,1:end);
-        X{i} = fault_input.X(i,1:end);
+    for i = 1:size(fault_input,1)
+        Y{i} = fault_input.Y(i,:);
+        X{i} = fault_input.X(i,:);
     end
+    %remove empty cells and write back into fault_input table
+    X(cellfun('isempty', X)) = [];
+    Y(cellfun('isempty', Y)) = [];
     fault_input.Y = Y;
     fault_input.X = X;
 end
-for i = 1:length(fault_input.Y)
+for i = 1:size(fault_input,1)
     %check for southern hemishphere coordinates and add 'false northing' of 10M
     if any(fault_input.Y{i} < 0) == true
         fault_input.Y{i} = fault_input.Y{i}+10000000;
@@ -85,7 +89,7 @@ for i = 1:length(fault_input.Y)
     fault_input.X{i}(isnan(fault_input.X{i})) = [];
     fault_input.Y{i}(isnan(fault_input.Y{i})) = [];
     %make all faults go from west to east:
-    if fault_input.X{i}(1) > fault_input.X{i}(end-1)
+    if fault_input.X{i}(1) > fault_input.X{i}(end)
         fault_input.X{i} = flip(fault_input.X{i});
         fault_input.Y{i} = flip(fault_input.Y{i});
     end
@@ -96,7 +100,7 @@ variables = {'fault_name','dip','rake','dip_dir','depth'};  %variable names of t
 for i = 1:length(variables)
     %check if input contains depth column. If not, add empty column:
     if any(strcmp('depth',fault_input.Properties.VariableNames)) == false
-        fault_input.depth = NaN(length(fault_input.fault_name),1);
+        fault_input.depth = NaN(size(fault_input,1),1);
     end
     while any(strcmp(variables{i},fault_input.Properties.VariableNames)) == false
         msg = sprintf('Enter the field name containing %s',variables{i});
@@ -116,7 +120,7 @@ end
 if isnumeric(fault_input.dip_dir) == false
     fault_input.dip_dir = str2double(fault_input.dip_dir);
 end
-for i = 1:length(fault_input.fault_name) %replace space by underscore in fault names
+for i = 1:size(fault_input,1) %replace space by underscore in fault names
     fault_input.fault_name{i} = strrep(fault_input.fault_name{i},' ','_');
 end
 
@@ -144,7 +148,7 @@ t = movevars(t,'plot','after','fault_name');
 
 clearvars ans col file i imp_fig path rb1 rb2 rb_shp rb_kml rb_kmz row set_utmzone utmhemi utmzone variables %free up workspace (delete import window elements and redundant variables)
 pause(3) %UI stops working if called before import ready, pause to avoid
-ui_main %earthquake panel opened as default
+ui_main %open main window
 %% ------------------ function space -------------------------
 %function to calculate fault length from X and Y data (when faults are imported)
 function t = calc_length(fault_input,t)

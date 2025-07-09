@@ -1,7 +1,7 @@
 % code to select and calculate slip distributions (functions below)
 
 slip_type = 'bulls_eye'; % comment what you need (could be coupled with a UI element (e.g. a dropdown))
-%slip_type = 'simple_backslip';
+% slip_type = 'simple_backslip';
 
 %% fetch variables:
 if input_check == false
@@ -102,7 +102,7 @@ end
 % currently not supporting variable segmentation etc.
 function slip_distribution = slipdist_triangular(maximum_slip,x_points)
     slip_distribution=zeros(size(x_points) - [1 1]);
-    slip_rate = maximum_slip;
+    slip_rate = maximum_slip/1000;
     half_len = linspace(0,slip_rate,round(size(slip_distribution,2)/2));
     comp_len = [half_len, flip(half_len)];
     if length(comp_len) > size(slip_distribution,2)

@@ -43,7 +43,7 @@ if subplot_cb.Value == true || faults.source_fault(ii) == true
     colormap(slip_dist);
     cb = colorbar('southoutside');
     title(cb,'Total slip (m)');
-    caxis([0 maximum_slip]);
+    clim([0 maximum_slip]);
     xlabel('UTM x')
     ylabel('UTM y')
     zlabel('Depth (m)')
