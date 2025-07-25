@@ -46,8 +46,8 @@ uilabel(coord_pnl,'Position',[150 80 130 20],'Text','margin    _____     %');
 set_margin = uispinner(coord_pnl,'Position',[195 80 50 20],'Step',5,'Limits',[0 1000],'Value',20,'ValueChangedFcn','mrg = set_margin.Value/100;','Tooltip','Margin on map around the fault network');
 auto_btn = uibutton(coord_pnl,'push','Text','auto grid limits','Position',[150 30 120 20],'Tooltip','Calculate grid extent that fits the fault network','BackgroundColor',[.95 .95 .95],'ButtonPushedFcn',@(auto_btn,event) autogrid(uit,fault_input,minx_txt, maxx_txt, miny_txt, maxy_txt, set_margin,axe));
 update_plot_btn = uibutton(coord_pnl,'push','Text','update plot','Position',[150 5 120 20],'Tooltip','Update overview map','BackgroundColor',[.95 .95 .95],'ButtonPushedFcn',@(update_plot_btn,event) map(axe,minx_txt,maxx_txt,miny_txt,maxy_txt,uit,fault_input));
-%plot button
-subplot_cb = uicheckbox(fig,'Position',[1020 600 200 20],'Value',true,'Text','Display entire network','Tooltip','Reduce time by only plotting the source fault');
+%plot button    
+subplot_cb = uicheckbox(fig,'Position',[1020 600 200 20],'Value',true,'Text','Display entire network','Tooltip','Reduce computation time by only plotting the source fault. All faults are modelled.');
 exp_geo_cb = uicheckbox(fig,'Position',[1020 620 200 20],'Text','Export fault geometry','Value',false,'HandleVisibility','off');
 btn = uibutton(fig,'push','Text','Build 3D faults','Position',[1020, 550, 180, 40],'BackgroundColor',[.8 .2 .2],'FontWeight','bold','ButtonPushedFcn','model_3D_faults','FontSize',18);
 

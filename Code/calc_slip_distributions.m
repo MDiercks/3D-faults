@@ -34,7 +34,7 @@ imagesc(slip_ax,slip_distribution)
 % Start and end points (in km) of ruptures are specified.
 % Identical for both variable and planar dip, and better functionality for changing the location of maximum slip
 
-% adjusted version for new user interface - updated 08/2023
+% adjusted version for new user interface - updated 08/2023 - MD
 function slip_distribution = slipdist_bulls_eye(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
     slip_distribution=zeros(size(x_points) - [1 1]); % generates a blank matrix for slip_distribution to be put into
     L=length(x_points(1,:));
@@ -86,8 +86,30 @@ function slip_distribution = slipdist_bulls_eye(start_slip,end_slip,rupt_top,rup
     for h=1:length(z_points(:,1))-1
 	    mid_depths(h,1)=-(z_points_copy(h,1)+z_points_copy(h+1,1))/2;
     end  
-    calc_depth = mid_depths(mid_depths > rupt_top & mid_depths < rupt_bot); %remove depths between rupture top and rupture bottom
     
+    %remove depths between rupture top and rupture bottom
+    patch_dip=nan(numel(mid_depths,1)); %calc dip for each patch (for variable dip faults)
+    patch_depth=nan(numel(mid_depths,1));
+    sum_depth=zeros(numel(mid_depths,1));
+    for n = 1:numel(mid_depths)
+        patch_dip(n) = 90-acosd(abs((z_points_copy(n+1,1)-z_points_copy(n,1)))/grid_sizem);
+        patch_depth(n) = cosd(90-patch_dip(n))*grid_sizem;
+        sum_depth(n+1) = patch_depth(n) + sum_depth(n);
+    end
+    rupt_bot_tot = rupt_bot; rupt_top_tot = rupt_top; %total depth of rupture top/bottom
+    if rupt_bot > max(sum_depth)
+        fprintf('The code assumes a fault width/length ratio of max. 1. Due to fault length and dip max. rupture depth is %.0f m\n',max(sum_depth))
+        rupt_bot_tot = max(sum_depth);
+    end
+    if rupt_top > max(sum_depth)
+        fprintf('Rupture top and bottom adjusted to %.0f and %.0f m\n',max(sum_depth)-2*grid_sizem,max(sum_depth))
+        rupt_bot_tot = max(sum_depth);
+        rupt_top_tot = max(sum_depth)-2*grid_sizem;
+        depth_distances=[rupt_top_tot;rupt_top_tot+grid_sizem;rupt_bot_tot]; 
+    end
+    calc_depth = mid_depths(mid_depths > rupt_top_tot & mid_depths < rupt_bot_tot); %remove depths between rupture top and rupture bottom
+    
+    %interpolate slip distribution onto grid
     slip_proportions=interp1(depth_distances,given_slip_proportions,calc_depth);
     slip_dist=slip_proportions*slips;
     
