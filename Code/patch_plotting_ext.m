@@ -1,4 +1,3 @@
-%function plt = patch_plotting(plt,x_points,y_points,z_points,utm_lat,utm_lon, maximum_slip, slip_distribution)
 %Plotting 3D fault planes with patch approach, colour coded by slip distribution
 xyz = nan(numel(x_points),14);
 p = 1;
@@ -17,7 +16,11 @@ for r=1:length(x_points(:,1))-1
             z(3)=z_points_copy(r+1,c+1);
         end
         if subplot_cb.Value == true || faults.source_fault(ii) == true
-            patch(x,y,z,slip_distribution(r,c));
+            if sliptype_dd.Value(1) == 'T'
+                patch(x,y,z,slip_distribution(r,c).*1000);
+            else
+                patch(x,y,z,slip_distribution(r,c));
+            end
         end
         %prepare fault geometry export
         if (~isnan(x_points(r,c)) && ~isnan(x_points(r,c+1)) && ~isnan(x_points(r+1,c)) && ~isnan(x_points(r+1,c+1))) ||... %all corners complete
@@ -42,8 +45,13 @@ if subplot_cb.Value == true || faults.source_fault(ii) == true
     slip_dist = interp1(A,T,linspace(0,2,101));
     colormap(slip_dist);
     cb = colorbar('southoutside');
-    title(cb,'Total slip (m)');
-    clim([0 maximum_slip]);
+    if sliptype_dd.Value(1) == 'B' || sliptype_dd.Value(1) == 'C'
+        clim([0 max(slip_distribution(:))]);
+        title(cb,'Total slip (m)');
+    elseif sliptype_dd.Value(1) == 'T'
+        clim([0 max(slip_distribution(:)*1000)]); %converting to mm in backslip mode
+        title(cb,'Slip rate (mm/a)');
+    end
     xlabel('UTM x')
     ylabel('UTM y')
     zlabel('Depth (m)')

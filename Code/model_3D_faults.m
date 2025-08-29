@@ -1,7 +1,7 @@
 % This script is triggered by the 'Build 3D Faults' button
 set(fig,'HandleVisibility','off'); close all
 figure(1);
-tic; format long
+format long
 
 %import and define variables:
 filename = cell2mat(set_filename.Value);
@@ -14,7 +14,7 @@ if fid < 0                                              %check for correct direc
     errordlg('You are not in the correct directory.')
     return
 end
-maximum_slip = 1; %needs to be specified for patch_plot
+% maximum_slip = 1; %needs to be specified for patch_plot
 
 % build input table from selected faults
 faults = uit.Data;
@@ -369,8 +369,7 @@ fprintf (fid,'  7  ------------------------  Z-increment =      %2.4f\n',COUL_GR
 fclose(fid);
 fclose('all');
 fprintf('Output file: %s \n',output_data_file);
-fprintf('Number of fault elements: %d \n',patch_count);
+fprintf('Number of fault elements: %d \n \n',patch_count);
 set(fig,'HandleVisibility','on');
 replace_fixed(patch_count,output_data_file)
-toc
 

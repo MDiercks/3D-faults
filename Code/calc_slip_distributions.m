@@ -1,26 +1,26 @@
 % code to select and calculate slip distributions (functions below)
 
-slip_type = 'bulls_eye'; % comment what you need (could be coupled with a UI element (e.g. a dropdown))
-% slip_type = 'simple_backslip';
-
 %% fetch variables:
 if input_check == false
     return
 end
-start_slip = sp_start.Value;
-end_slip = sp_end.Value;
-rupt_top = sp_rupt_top.Value*1000;
-rupt_bot = sp_rupt_bot.Value*1000;
-max_slip = set_maxSlip.Value;
-surf_slip = set_surfSlip.Value / 100;
-centre_hor = round(sl_centre_hor.Value)*1000;
-centre_ver = sp_centre_ver.Value*1000;
+if sliptype_dd.Value(1) == 'B' || sliptype_dd.Value(1) == 'T'
+    start_slip = sp_start.Value;
+    end_slip = sp_end.Value;
+    rupt_top = sp_rupt_top.Value*1000;
+    rupt_bot = sp_rupt_bot.Value*1000;
+    max_slip = set_maxSlip.Value;
+    surf_slip = set_surfSlip.Value / 100;
+    centre_hor = round(sl_centre_hor.Value)*1000;
+    centre_ver = sp_centre_ver.Value*1000;
+end
 %% check slip type & call functions
-switch slip_type
-    case 'bulls_eye'
+if sliptype_dd.Value(1) == 'B' %bulls-eye
         slip_distribution = slipdist_bulls_eye(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
-    case 'simple_backslip'
+elseif sliptype_dd.Value(1) == 'T' %triangular
         slip_distribution = slipdist_triangular(max_slip,x_points);
+elseif sliptype_dd.Value(1) == 'C' %custom
+        slip_distribution = slipdist_custom(x_points);
 end
 
 %% plot slip distribution preview
@@ -122,9 +122,9 @@ end
 % simple approach: use max. slip rate and triangular distribution
 % maximum slip spinner is used to enter slip rate (mm/yr)
 % currently not supporting variable segmentation etc.
-function slip_distribution = slipdist_triangular(maximum_slip,x_points)
+function slip_distribution = slipdist_triangular(max_slip,x_points)
     slip_distribution=zeros(size(x_points) - [1 1]);
-    slip_rate = maximum_slip/1000;
+    slip_rate = max_slip/1000;
     half_len = linspace(0,slip_rate,round(size(slip_distribution,2)/2));
     comp_len = [half_len, flip(half_len)];
     if length(comp_len) > size(slip_distribution,2)
@@ -133,4 +133,20 @@ function slip_distribution = slipdist_triangular(maximum_slip,x_points)
     for i = 1:size(slip_distribution,1)
         slip_distribution(i,:) = comp_len;
     end
+end
+
+%% custom slip distribution from csv file
+%import a custom slip distribution; must be imported as a list of
+%values with the same number of elements as the modelled fault!
+
+function slip_distribution = slipdist_custom(x_points)
+    disp('Import the slip distribution from a .csv-file.')
+    [slip_file,slip_file_path] = uigetfile('*.csv');
+    custom_slip = readmatrix(fullfile(slip_file_path,slip_file));
+    slip_distribution=zeros(size(x_points) - [1 1]);
+    if numel(slip_distribution) ~= numel(custom_slip)
+        errordlg('Number of elements in imported slip vector must match number of elements of modelled fault geometry!')
+        return
+    end
+    slip_distribution = reshape(custom_slip, size(slip_distribution,1), size(slip_distribution,2));
 end

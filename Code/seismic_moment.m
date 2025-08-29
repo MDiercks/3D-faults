@@ -27,5 +27,5 @@ for r=1:length(slip_distribution(:,1))
 end
 mw = (2/3) * log10(amo) - 10.7; %Hanks & Kanamori, 1979
 %mw = (2/3) * (log10(amo) - 16.1);
-disp(['   Total seismic moment = ' num2str(amo,'%6.2e') ' dyne cm (Mw = ', num2str(mw,'%4.2f') ')']);
+disp(['Total seismic moment = ' num2str(amo,'%6.2e') ' dyne cm (Mw = ', num2str(mw,'%4.2f') ')']);
 

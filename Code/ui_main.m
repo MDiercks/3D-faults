@@ -29,9 +29,12 @@ int_thresh = uispinner(intersect_pnl,'Position',[180 30 60 20],'Step',.1,'Limits
 uilabel(intersect_pnl,'Position',[10 5 200 20],'Text','Select major/minor faults:');
 priority_dd = uidropdown(intersect_pnl,'Position',[150 5 90 20],'Items',{'by priority','in table order'});
 %output panel
-output_pnl = uipanel(fig,'Title','Output','Position',[500 570 220 100],'BorderType','none');
-uilabel(output_pnl,'Position',[10 55 200 20],'Text','Output file name:');
-set_filename = uitextarea(output_pnl,'Position',[10 30 200 20],'Value','filename','Tooltip','Name for output file');
+output_pnl = uipanel(fig,'Title','Output','Position',[500 545 220 125],'BorderType','none');
+uilabel(output_pnl,'Position',[10 80 200 20],'Text','Output file name:');
+set_filename = uitextarea(output_pnl,'Position',[10 55 200 20],'Value','filename','Tooltip','Name for output file');
+uilabel(output_pnl,'Position',[10 30 200 20],'Text','Slip distribution:');
+sliptype_dd = uidropdown(output_pnl,'Position',[10 5 200 20],'Items',{'Bulls-Eye (default)','Triangular (backslip)','Custom (not recommended)'});
+
 %coordinates panel:
 coord_pnl = uipanel(fig,'Title','Grid Limits (UTM coordinates)','Position',[730 545 270 125],'BorderType','none');
 uilabel(coord_pnl,'Position',[10 80 130 20],'Text','min_x       _____    000');
@@ -69,16 +72,12 @@ function create_menu(fig,uit,vardip)
 imp_menu = uimenu(fig,'Text','Import','HandleVisibility','off');
     imp_vardip = uimenu(imp_menu,'Text','Variable Dip','HandleVisibility','off','MenuSelectedFcn',@(imp_vardip,event) variable_dip(uit,vardip,fig)); %#ok<NASGU>
 %    imp_sliprate = uimenu(imp_menu,'Text','Slip Rates','HandleVisibility','off','MenuSelectedFcn',@(imp_sliprate,event) import_sliprate(uit)); %#ok<NASGU>
-%build_menu = uimenu(fig,'Text','Slip Distribution','HandleVisibility','off');
-%    eq_menu = uimenu(build_menu,'Text','Coseismic','HandleVisibility','off','MenuSelectedFcn','ui_earthquake'); %#ok<NASGU>
-%    intseis_menu = uimenu(build_menu,'Text','Interseismic','HandleVisibility','off','MenuSelectedFcn','ui_interseis'); %#ok<NASGU>
-%plot_menu = uimenu(fig,'Text','Plot');
-%    cumstress_menu = uimenu(plot_menu,'Text','Cumulative Stress');
+
 opt_menu = uimenu(fig,'Text','Options','HandleVisibility','off');
     restart_menu = uimenu(opt_menu,'Text','Restart','HandleVisibility','off','MenuSelectedFcn','ui','Tooltip','Restart to load new faults'); %#ok<NASGU>
     exp_table_menu = uimenu(opt_menu,'Text','Export table to .csv','HandleVisibility','off','MenuSelectedFcn',@(exp_table_menu,event) table_export(uit));
     set(exp_table_menu,'Tooltip','Save table to .txt file. Stored in "3D-Faults/Output_files"');
-
+    
 end
 %table export to .csv
 function table_export(uit)
