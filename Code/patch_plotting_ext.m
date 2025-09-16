@@ -35,21 +35,28 @@ for r=1:length(x_points(:,1))-1
 end
 xyz(find(isnan(xyz(:,1)),1,'first'):end,:) = [];
 if subplot_cb.Value == true || faults.source_fault(ii) == true
+    %create plot
     hold('on')
     plot(utm_lon,utm_lat,'g','LineWidth',2);
     axis('equal')
     view(3)
-    % Colour map for slip distribution
+
+    % Define Colormap and colorbar
     T=[1,1,1; 1,1,0; 1,0,0];% white, yellow, red
     A=[0;1;2];
     slip_dist = interp1(A,T,linspace(0,2,101));
     colormap(slip_dist);
     cb = colorbar('southoutside');
+
+    %determine colorbar limits
+    if max(slip_distribution(:)) > max_slip_total
+        max_slip_total = max(slip_distribution(:));
+    end
     if sliptype_dd.Value(1) == 'B' || sliptype_dd.Value(1) == 'C'
-        clim([0 max(slip_distribution(:))]);
+        clim([0 max_slip_total]);
         title(cb,'Total slip (m)');
     elseif sliptype_dd.Value(1) == 'T'
-        clim([0 max(slip_distribution(:)*1000)]); %converting to mm in backslip mode
+        clim([0 max_slip_total*1000]); %converting to mm in backslip mode
         title(cb,'Slip rate (mm/a)');
     end
     xlabel('UTM x')

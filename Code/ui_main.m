@@ -16,7 +16,7 @@ uiimage(fig,'ImageSource','mapkey.png','Position',[790 43 230 60]); %map key
 %options panel
 opt_pnl = uipanel(fig,'Title','Fault geometry','Position',[10 570 220 100],'BorderType','none');
 uilabel(opt_pnl,'Position',[10 55 130 20],'Text','Grid Size (km):');
-set_grid_size = uispinner(opt_pnl,'Position',[150 55 60 20],'Step',0.5,'Limits',[0 30],'Value',settings.value(6),'ValueChangedFcn','grid_size = set_grid_size.Value;');
+set_grid_size = uispinner(opt_pnl,'Position',[150 55 60 20],'Step',0.1,'Limits',[0.1 30],'Value',settings.value(6),'ValueChangedFcn','grid_size = set_grid_size.Value;');
 set(set_grid_size,'Tooltip','Size of fault elements along strike');
 uilabel(opt_pnl,'Position',[10 30 140 20],'Text','Seismogenic depth (km):');
 set_seismoDepth = uispinner(opt_pnl,'Position',[150 30 60 20],'Step',.5,'Limits',[0 inf],'Value',settings.value(3),'ValueChangedFcn','seismo_depthm = set_seismoDepth.Value;');

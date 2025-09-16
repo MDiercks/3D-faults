@@ -5,9 +5,9 @@ COUL_GRID_SIZE = settings.value(8);
 %% set up import window
 imp_fig = uifigure('Name','3D - Fault - Fault Import','Position',[200 200 730 420],'Color',[.4 .4 .4],'Resize','off'); %import window %randi([7 10],1,3)/10
 uilabel(imp_fig,'Position',[10 380 710 40],'Text','3D-Faults','FontSize',24,'FontWeight','bold','FontName','Cambria','FontColor','white','HorizontalAlignment','center');
-version_desc = sprintf(strcat('A code to build 3D fault networks and slip distributions for use with Coulomb 3.3 software. \n',...
+version_desc = sprintf(strcat('A code to build complex 3D fault networks and slip distributions for use with Coulomb 3.3 software. \n',...
     'Written by Zoe Mildon and Manuel Diercks \n',...
-    'Version 2.9.0 - 08/2025'));
+    'Version 2.9.1 - 09/2025'));
 uilabel(imp_fig,'Position',[10 310 710 50],'Text',version_desc,'FontName','Cambria','FontColor','white');
 
 %import button panel

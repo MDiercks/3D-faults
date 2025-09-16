@@ -30,8 +30,8 @@ end
 %% setting the vertical rupture location and limits (only for bulls-eye slip)
 ver_lbl = uilabel(slip_fig,'Position',[440 350 100 100],'Text',sprintf('Rupture top: \n\n\nVertical centre: \n\n\nRupture bottom:'));
 sp_rupt_top = uispinner(slip_fig,'Position',[440 415 80 20],'Value',0,'Step',0.5,'Limits',[0 set_seismoDepth.Value],'ValueChangedFcn',update_function);
-sp_centre_ver = uispinner(slip_fig,'Position',[440 371 80 20],'Value',set_seismoDepth.Value/2,'Step',0.5,'Limits',[0 set_seismoDepth.Value],'ValueChangedFcn',update_function);
-sp_rupt_bot = uispinner(slip_fig,'Position',[440 327 80 20],'Value',set_seismoDepth.Value,'Step',0.5,'Limits',[0 set_seismoDepth.Value],'ValueChangedFcn',update_function);
+sp_centre_ver = uispinner(slip_fig,'Position',[440 371 80 20],'Value',faults.depth(ii)/2,'Step',0.5,'Limits',[0 set_seismoDepth.Value],'ValueChangedFcn',update_function);
+sp_rupt_bot = uispinner(slip_fig,'Position',[440 327 80 20],'Value',faults.depth(ii),'Step',0.5,'Limits',[0 set_seismoDepth.Value],'ValueChangedFcn',update_function);
 
 warn_lbl = uilabel(slip_fig,'Position',[50 50 500 20],'Text',' ','FontColor','red','HorizontalAlignment','center');
 btn_ok = uibutton(slip_fig,'Position',[260 20 50 30],'Text','OK','ButtonPushedFcn','uiresume');
@@ -78,6 +78,8 @@ xlabel(slip_ax,'distance (km)')
 T=[1,1,1; 1,1,0; 1,0,0];% white, yellow, red
 A=[0;1;2];
 colormap(slip_ax,interp1(A,T,linspace(0,2,101)))
+set(slip_ax,'XTickLabel', slip_ax.XTick*grid_size)
+set(slip_ax,'YTickLabel', slip_ax.YTick*grid_size)
 
 uiwait
 maximum_slip = set_maxSlip.Value;

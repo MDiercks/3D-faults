@@ -2,19 +2,20 @@
 set(fig,'HandleVisibility','off'); close all
 figure(1);
 format long
-
 %import and define variables:
 filename = cell2mat(set_filename.Value);
 grid_size = set_grid_size.Value;
 seismo_depthm = set_seismoDepth.Value*1000;
 grid_sizem = grid_size*1000;
-output_data_file = strcat('Output_files/',filename,num2str(grid_size),'km.inr');
+
+d = char(datetime); d=strrep(d,':',''); d=strrep(d,' ','_'); d=strrep(d,'-','');
+output_data_file = strcat('Output_files/',filename,'_',d,'.inr'); %set a unique filename to prevent overwriting
 fid=fopen(output_data_file, 'wt');
 if fid < 0                                              %check for correct directory
     errordlg('You are not in the correct directory.')
     return
 end
-% maximum_slip = 1; %needs to be specified for patch_plot
+max_slip_total = 0.000001; %defines maximum slip for plot only
 
 % build input table from selected faults
 faults = uit.Data;
@@ -92,7 +93,7 @@ for ii = 1:numel(source_idx)
 end
 %% Write the beginning of the Coulomb output file (comments)
 fprintf (fid,'This is a file created by rectangularly gridding the faults.\n');
-fprintf (fid,'Faults with slip are %s the grid size of faults is %2.0f km\n',fault_slip_name,(grid_size));
+fprintf (fid,'Faults with slip are %s\n',fault_slip_name);
 fprintf (fid,'#reg1=  0  #reg2=  0   #fixed= 1000  sym=  1\n');
 fprintf (fid,' PR1=       .250      PR2=       .250    DEPTH=        5.0\n');
 fprintf (fid,'  E1=   0.800000E+06   E2=   0.800000E+06\n');
@@ -113,6 +114,7 @@ for ii = 1:length(faults.fault_name)
     rake = faults.rake(ii);
     dip_dir = faults.dip_dir(ii);
     fault_length=faults.len(ii);
+    % grid_size=faults.grid_size(ii);grid_sizem=grid_size*1000;
     
     %decide between constant and variable dip:
     if isnumeric(faults.dip{ii}) == true
@@ -283,7 +285,7 @@ for ii = 1:length(faults.fault_name)
         [ccmatrix,x_points,y_points,z_points] = intersect_faults(x_points,y_points,z_points,ccmatrix,int_thresh,ii,faults,priority_dd); %call intersecting faults function
     end
     
-%% Calculating the bulls eye slip distribution. Options included - Updated interface 01/2023
+%% Calculating the slip distribution. Options included - Updated interface 01/2023
     if faults.source_fault(ii) == true
         fprintf('Source fault: %s \n',fault_name)
         slip_options_panel %open the window to set all rupture parameters
@@ -341,7 +343,12 @@ for ii = 1:length(faults.fault_name)
             end
         end
     end
-    clearvars a b c col constant_dip delta_x delta_y delta_z dip dip_dir dx dy fault_down_dip_length fault_name geometry grid_size_depth grid_size_surface grid_size_to_depth idx I j k l last_point m n r rake row rows slipq tp utm_lat utm_lon utm_x utm_y utm_z x_points y_points z_points
+    clearvars a b c d col constant_dip delta_x delta_y delta_z dip dip_dir dx dy fault_down_dip_length fault_name geometry grid_size_depth grid_size_surface grid_size_to_depth
+    clearvars idx I j k l last_point m n r rake row rows slipq tp utm_lat utm_lon utm_x utm_y utm_z x_points y_points z_points
+end
+%warning if no source fault is specifiied
+if max(slip_distribution(:)) == 0
+    disp('Warning: No source fault specified!')
 end
 %% Finishing off writing the Coulomb input file
 fprintf (fid,'\n');
