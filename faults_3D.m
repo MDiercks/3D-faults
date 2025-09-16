@@ -1,4 +1,4 @@
-%% 3D-Faults v. 2.9
+%% 3D-Faults v. 2.9.1
 %
 % Software to plot 3D-faults from surface traces, assign slip distributions and export for use in Coulomb 3.3 software
 % 
