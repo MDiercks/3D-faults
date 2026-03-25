@@ -136,8 +136,8 @@ end
 t.source_fault = false(1,length(t.fault_name))';
 t.plot = true(1,length(t.fault_name))';
 t = calc_length(fault_input,t); %calling calc_length function
-[row,col] = find(ismissing([cell2mat(t.dip), t.rake, t.dip_dir]));
-t.plot(row) = false;
+% [row,col] = find(ismissing([cell2mat(t.dip), t.rake, t.dip_dir]));
+% t.plot(row) = false;
 if any(ismember(fault_input.Properties.VariableNames,'priority'))
     t.priority = fault_input.priority;
 else

@@ -318,7 +318,8 @@ for ii = 1:length(faults.fault_name)
                 %checking completeness of each patch: if one top corner or both bottom corners are missing, patch is deleted (not plotted)
                 %                                     if one bottom corner is missing, it is replaced by a copied value
                 if (~isnan(x_points(r,c)) && ~isnan(x_points(r,c+1)) && ~isnan(x_points(r+1,c)) && ~isnan(x_points(r+1,c+1))) ||... %all corners complete
-                   ((~isnan(x_points(r,c)) && ~isnan(x_points(r,c+1))) && ((isnan(x_points(r+1,c)) && ~isnan(x_points(r+1,c+1))) || (~isnan(x_points(r+1,c)) && isnan(x_points(r+1,c+1)))) )%both top corners complete and one bottom corner missing 
+                   ((~isnan(x_points(r,c)) && ~isnan(x_points(r,c+1))) && ((isnan(x_points(r+1,c)) && ~isnan(x_points(r+1,c+1))) ||...
+                   (~isnan(x_points(r+1,c)) && isnan(x_points(r+1,c+1)))) )%both top corners complete and one bottom corner missing 
                     switch geometry
                         case 'constant'
                             dip = constant_dip;
@@ -346,10 +347,7 @@ for ii = 1:length(faults.fault_name)
     clearvars a b c d col constant_dip delta_x delta_y delta_z dip dip_dir dx dy fault_down_dip_length fault_name geometry grid_size_depth grid_size_surface grid_size_to_depth
     clearvars idx I j k l last_point m n r rake row rows slipq tp utm_lat utm_lon utm_x utm_y utm_z x_points y_points z_points
 end
-%warning if no source fault is specifiied
-if max(slip_distribution(:)) == 0
-    disp('Warning: No source fault specified!')
-end
+
 %% Finishing off writing the Coulomb input file
 fprintf (fid,'\n');
 fprintf (fid,'\n');

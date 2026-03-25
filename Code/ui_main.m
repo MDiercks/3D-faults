@@ -1,6 +1,6 @@
 %User Interface for 3D Faults
 
-fig = uifigure('Name','3D-Faults','Position',[5 45 1356 680],'Resize','off');
+fig = uifigure('Name','3D-Faults','Position',[5 45 1256 680],'Resize','off');
 %TABLE:
 uit = uitable(fig,'Position',[10 10 700, 510],'Data',t,'ColumnEditable',[false true true true true true true false true],'ColumnName',{'Fault name','plot','source ft.','dip','rake','dip dir.','depth (km)','length (km)','priority'});
 %elements above table
@@ -32,8 +32,6 @@ priority_dd = uidropdown(intersect_pnl,'Position',[150 5 90 20],'Items',{'by pri
 output_pnl = uipanel(fig,'Title','Output','Position',[500 545 220 125],'BorderType','none');
 uilabel(output_pnl,'Position',[10 80 200 20],'Text','Output file name:');
 set_filename = uitextarea(output_pnl,'Position',[10 55 200 20],'Value','filename','Tooltip','Name for output file');
-uilabel(output_pnl,'Position',[10 30 200 20],'Text','Slip distribution:');
-sliptype_dd = uidropdown(output_pnl,'Position',[10 5 200 20],'Items',{'Bulls-Eye (default)','Triangular (backslip)','Custom (not recommended)'});
 
 %coordinates panel:
 coord_pnl = uipanel(fig,'Title','Grid Limits (UTM coordinates)','Position',[730 545 270 125],'BorderType','none');
@@ -63,7 +61,7 @@ autogrid(uit,fault_input,minx_txt, maxx_txt, miny_txt, maxy_txt, set_margin,axe)
 axe = map(axe,minx_txt,maxx_txt,miny_txt,maxy_txt,uit,fault_input);
 
 % configure table
-set(uit,'ColumnWidth',{215,40,70,40,40,55,78,80,57},'CellEditCallback',@(uit,event) tableChangedfun(axe,minx_txt,maxx_txt,miny_txt,maxy_txt,uit,fault_input));
+set(uit,'ColumnWidth',{215,40,70,40,40,55,78,82,57},'CellEditCallback',@(uit,event) tableChangedfun(axe,minx_txt,maxx_txt,miny_txt,maxy_txt,uit,fault_input));
 uit.Data.source_fault = false(length(uit.Data.fault_name),1);
 
 %% -----------------  functions --------------------
@@ -74,10 +72,9 @@ imp_menu = uimenu(fig,'Text','Import','HandleVisibility','off');
 %    imp_sliprate = uimenu(imp_menu,'Text','Slip Rates','HandleVisibility','off','MenuSelectedFcn',@(imp_sliprate,event) import_sliprate(uit)); %#ok<NASGU>
 
 opt_menu = uimenu(fig,'Text','Options','HandleVisibility','off');
-    restart_menu = uimenu(opt_menu,'Text','Restart','HandleVisibility','off','MenuSelectedFcn','ui','Tooltip','Restart to load new faults'); %#ok<NASGU>
+    restart_menu = uimenu(opt_menu,'Text','Restart','HandleVisibility','off','MenuSelectedFcn','set(fig,"HandleVisibility","on"); close all; clear all; faults_3D','Tooltip','Restart to load new faults'); %#ok<NASGU>
     exp_table_menu = uimenu(opt_menu,'Text','Export table to .csv','HandleVisibility','off','MenuSelectedFcn',@(exp_table_menu,event) table_export(uit));
     set(exp_table_menu,'Tooltip','Save table to .txt file. Stored in "3D-Faults/Output_files"');
-    
 end
 %table export to .csv
 function table_export(uit)

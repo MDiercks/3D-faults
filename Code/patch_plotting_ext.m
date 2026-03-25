@@ -16,7 +16,7 @@ for r=1:length(x_points(:,1))-1
             z(3)=z_points_copy(r+1,c+1);
         end
         if subplot_cb.Value == true || faults.source_fault(ii) == true
-            if sliptype_dd.Value(1) == 'T'
+            if faults.source_fault(ii) == true && max(slip_distribution(:)) < 0.1 %fix to adjust color scale for backslip slip distribution
                 patch(x,y,z,slip_distribution(r,c).*1000);
             else
                 patch(x,y,z,slip_distribution(r,c));
@@ -46,17 +46,18 @@ if subplot_cb.Value == true || faults.source_fault(ii) == true
     A=[0;1;2];
     slip_dist = interp1(A,T,linspace(0,2,101));
     colormap(slip_dist);
-    cb = colorbar('southoutside');
 
     %determine colorbar limits
     if max(slip_distribution(:)) > max_slip_total
         max_slip_total = max(slip_distribution(:));
     end
-    if sliptype_dd.Value(1) == 'B' || sliptype_dd.Value(1) == 'C'
+    if faults.source_fault(ii) == true && max(slip_distribution(:)) > 0.1 %temporary fix to adjust colorbar for backslip slip distribution
         clim([0 max_slip_total]);
+        cb = colorbar('southoutside');
         title(cb,'Total slip (m)');
-    elseif sliptype_dd.Value(1) == 'T'
+    elseif faults.source_fault(ii) == true && max(slip_distribution(:)) < 0.1
         clim([0 max_slip_total*1000]); %converting to mm in backslip mode
+        cb = colorbar('southoutside');
         title(cb,'Slip rate (mm/a)');
     end
     xlabel('UTM x')

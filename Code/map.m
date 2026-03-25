@@ -31,4 +31,10 @@ function axe = map(axe,minx_txt,maxx_txt,miny_txt,maxy_txt,uit,fault_input)
         end
     end
     %set(axe,'HandleVisibility','off');
+    grid(axe, 'on');
+    if abs(max_y-min_y) > abs(max_x-min_x) %generate a small margin around the map on the plot
+        ylim(axe, [min_y-abs(0.01*min_y) max_y+abs(0.01)*max_y]);
+    else
+        xlim(axe, [min_x-abs(0.01)*min_x max_x+abs(0.01)*max_x]);
+    end
 end

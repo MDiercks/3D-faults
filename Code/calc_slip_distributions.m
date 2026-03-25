@@ -4,7 +4,7 @@
 if input_check == false
     return
 end
-if sliptype_dd.Value(1) == 'B' || sliptype_dd.Value(1) == 'T'
+if sliptype_dd.Value(1) ~= 'C'
     start_slip = sp_start.Value;
     end_slip = sp_end.Value;
     rupt_top = sp_rupt_top.Value*1000;
@@ -15,27 +15,25 @@ if sliptype_dd.Value(1) == 'B' || sliptype_dd.Value(1) == 'T'
     centre_ver = sp_centre_ver.Value*1000;
 end
 %% check slip type & call functions
-if sliptype_dd.Value(1) == 'B' %bulls-eye
-        slip_distribution = slipdist_bulls_eye(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
-elseif sliptype_dd.Value(1) == 'T' %triangular
+switch sliptype_dd.Value
+    case 'Bulls-eye (for normal/thrust)'
+        slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
+    case 'Elongated bulls-eye (for strike-slip)'
+        slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
+    case 'Triangular (backslip)'
         slip_distribution = slipdist_triangular(max_slip,x_points);
-elseif sliptype_dd.Value(1) == 'C' %custom
+    case 'Custom (csv-import)'
         slip_distribution = slipdist_custom(x_points);
 end
 
 %% plot slip distribution preview
 imagesc(slip_ax,slip_distribution)
 
-%% Calculating a bulls eye (triangular) slip distribution given a maximum slip value
+%% Bulls eye (concentric) slip distribution for normal/thrust
 % Given a maximum slip value, which is assigned to the centre of the fault this script will calculate a 
 % triangular slip distribution (slip vs distance along the fault) which will then be applied to gridded fault.
 
-% Written 07/04/21 by Zoe Mildon - to reduce complexity of calculating slip distribution when only part of the fault ruptures. 
-% Start and end points (in km) of ruptures are specified.
-% Identical for both variable and planar dip, and better functionality for changing the location of maximum slip
-
-% adjusted version for new user interface - updated 08/2023 - MD
-function slip_distribution = slipdist_bulls_eye(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
+function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
     slip_distribution=zeros(size(x_points) - [1 1]); % generates a blank matrix for slip_distribution to be put into
     L=length(x_points(1,:));
     d2=grid_sizem/2;
@@ -117,11 +115,16 @@ function slip_distribution = slipdist_bulls_eye(start_slip,end_slip,rupt_top,rup
     slip_distribution(row_idx:(row_idx+length(calc_depth)-1),col_idx(1):col_idx(end))=slip_dist; % Putting slip_dist matrix into the zeros matrix previously set up
 end
 
-%% simple triangular slip distribution (for backslip)
-% create slip distribution for backslip
-% simple approach: use max. slip rate and triangular distribution
-% maximum slip spinner is used to enter slip rate (mm/yr)
-% currently not supporting variable segmentation etc.
+%% Bulls-eye slip distribution for strike slip
+function slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
+    disp('Function currently missing. Please choose a different slip distribution.')
+    slip_distribution = NaN;  %@Zoe, please insert code here
+    
+end
+
+%% Triangular slip distribution (for backslip)
+% simple slip distribution to calculate interseismic stress loading using
+% 'virtual negative displacements ('back-slip' method; Deng & Sykes, 1997)
 function slip_distribution = slipdist_triangular(max_slip,x_points)
     slip_distribution=zeros(size(x_points) - [1 1]);
     slip_rate = max_slip/1000;
