@@ -34,7 +34,7 @@ if sliptype_dd.Value(1) == 'T'
     set(btn_mw, 'Visible', 'off')
 else
     set(surfSlip_lbl, 'Visible', 'on');
-    set(surfSlip_lbl, 'Visible', 'on');
+    set(set_surfSlip, 'Visible', 'on');
     set(maxSlip_lbl, 'Text', 'Maximum slip (m):');
     set(mw_lbl, 'Visible', 'on')
     set(btn_mw, 'Visible', 'on')
