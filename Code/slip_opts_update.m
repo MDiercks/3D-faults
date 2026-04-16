@@ -25,17 +25,17 @@ else
     input_check = true;
 end
 
-%% modify UI if interseismic (backslip) is selected
-if sliptype_dd.Value(1) == 'T'
-    set(surfSlip_lbl, 'Visible', 'off');
-    set(set_surfSlip, 'Visible', 'off');
-    set(maxSlip_lbl, 'Text', 'Maximum slip (mm):');
-    set(mw_lbl, 'Visible', 'off')
-    set(btn_mw, 'Visible', 'off')
-else
-    set(surfSlip_lbl, 'Visible', 'on');
-    set(set_surfSlip, 'Visible', 'on');
-    set(maxSlip_lbl, 'Text', 'Maximum slip (m):');
-    set(mw_lbl, 'Visible', 'on')
-    set(btn_mw, 'Visible', 'on')
-end
+% %% modify UI if interseismic (backslip) is selected
+% if sliptype_dd.Value(1) == 'T'
+%     set(surfSlip_lbl, 'Visible', 'off');
+%     set(set_surfSlip, 'Visible', 'off');
+%     set(maxSlip_lbl, 'Text', 'Maximum slip (mm):');
+%     set(mw_lbl, 'Visible', 'off')
+%     set(btn_mw, 'Visible', 'off')
+% else
+%     set(surfSlip_lbl, 'Visible', 'on');
+%     set(set_surfSlip, 'Visible', 'on');
+%     set(maxSlip_lbl, 'Text', 'Maximum slip (m):');
+%     set(mw_lbl, 'Visible', 'on')
+%     set(btn_mw, 'Visible', 'on')
+% end

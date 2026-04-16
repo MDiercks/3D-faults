@@ -2,7 +2,7 @@
 set(fig,'HandleVisibility','off'); close all
 figure(1);
 format long
-%import and define variables:
+%% import and define variables:
 filename = cell2mat(set_filename.Value);
 grid_size = set_grid_size.Value;
 seismo_depthm = set_seismoDepth.Value*1000;
@@ -17,7 +17,7 @@ if fid < 0                                              %check for correct direc
 end
 max_slip_total = 0.000001; %defines maximum slip for plot only
 
-% build input table from selected faults
+%% build input table from selected faults
 faults = uit.Data;
 rows = find(~uit.Data.plot);
 faults.X = cell(length(uit.Data.plot),1);
@@ -45,13 +45,14 @@ for ii = 1:length(faults.depth)
 end
 faults.depth = cell2mat(faults.depth);
 
-%save grid limits to workspace
-min_x = str2double(minx_txt.Value{1});
-max_x = str2double(maxx_txt.Value{1});
-min_y = str2double(miny_txt.Value{1});
-max_y = str2double(maxy_txt.Value{1});
+%% select method for interseismic slip distribution (if selected)
+if any(faults.source_fault) && slipdist_dd.Value(1) == 'i'
+        interseis_select = questdlg('Select interseismic slip distribution method:', ...
+            'Interseismic Method', ...
+            'backslip','shearzones','backslip');
+end
 
-%check for missing data
+%% check for missing or erroneous data
 for j = 1:length(faults.dip)
     if isempty(faults.dip(j)) == true
         msg = sprintf('Missing dip information for \n %s',faults.fault_name{j});
@@ -79,7 +80,7 @@ for j = 1:length(faults.dip)
     end
 end
 
-%rearrange the table for correct plot order (important for intersecting faults):
+%% rearrange the table for correct plot order (important for intersecting faults):
 if intersect_cb.Value == true
     switch priority_dd.Value
         case 'by priority'
@@ -93,9 +94,9 @@ for ii = 1:numel(source_idx)
 end
 %% Write the beginning of the Coulomb output file (comments)
 fprintf (fid,'This is a file created by rectangularly gridding the faults.\n');
-fprintf (fid,'Faults with slip are %s\n',fault_slip_name);
+fprintf (fid,'Faults with slip: %s\n',fault_slip_name);
 fprintf (fid,'#reg1=  0  #reg2=  0   #fixed= 1000  sym=  1\n');
-fprintf (fid,' PR1=       .250      PR2=       .250    DEPTH=        5.0\n');
+fprintf (fid,' PR1=       .250      PR2=       .250    DEPTH=        0.0\n');
 fprintf (fid,'  E1=   0.800000E+06   E2=   0.800000E+06\n');
 fprintf (fid,'XSYM=       .000     YSYM=       .000\n');
 fprintf (fid,'FRIC=       .400\n');
@@ -275,7 +276,7 @@ for ii = 1:length(faults.fault_name)
             num_dip(isnan(num_dip)) = [];
             dip_angle(isnan(dip_angle)) = [];
     end
-    %% intersecting faults:
+    %% intersecting faults: preparation and call intersect_faults function
     %copy x_points, y_points, z_points (needed in other parts of the code)
     x_points_copy = x_points;
     y_points_copy = y_points;
@@ -285,18 +286,31 @@ for ii = 1:length(faults.fault_name)
         [ccmatrix,x_points,y_points,z_points] = intersect_faults(x_points,y_points,z_points,ccmatrix,int_thresh,ii,faults,priority_dd); %call intersecting faults function
     end
     
-%% Calculating the slip distribution. Options included - Updated interface 01/2023
+%% Calculating the slip distribution. Options included - Updated interface 01/2023 / 04/2026
     if faults.source_fault(ii) == true
         fprintf('Source fault: %s \n',fault_name)
-        slip_options_panel %open the window to set all rupture parameters
-        close(slip_fig); %close the window after fetching all variables
+        if slipdist_dd.Value(1) == 'c' %coseismic slip selected
+            slip_options_panel %open the window to set all rupture parameters
+            close(slip_fig); %close the window after fetching all variables
+        else %interseismic slip selected
+            switch interseis_select
+                case 'backslip' %HERE WE NEED TO ADD THE ADDITIONAL WINDOWS FOR CONFIGURATION OF THE SHEARZONES OR BACKSLIP
+                    disp('Interseismic stress accumulation with backslip model: work in progress')
+                    return
+                case 'shearzones'
+                    disp('Interseismic stress accumulation with shear zone model: work in progress')
+                    return
+                otherwise
+                    return
+            end
+        end
     elseif faults.source_fault(ii) == false
         slip_distribution=zeros((length(z_points_copy(:,1))-1),(length(x_points_copy(1,:))-1)); % creates a slip of 0 for faults without movement
     end
     if ii == 1 && slip_distribution(1,1) == 0
         slip_distribution(1,1) = 0.000001; %assign a small value to the first element to fix the issue with Coulomb code
     end
-    %% remove (set as NaN) all patches from the slip distribution that intersect with another fault:
+    %% intersecting faults: remove (set as NaN) all patches from the slip distribution that intersect with another fault:
     for r = 1:length(slip_distribution(:,1))
         for c = 1:length(slip_distribution(1,:))
             if isnan(x_points(r,c)) || isnan(x_points(r,c+1)) || (isnan(x_points(r+1,c)) && isnan(x_points(r+1,c+1)))
@@ -352,10 +366,10 @@ end
 fprintf (fid,'\n');
 fprintf (fid,'\n');
 fprintf (fid,'    Grid Parameters\n');
-fprintf (fid,'  1  ----------------------------  Start-x =    %3.5f\n',min_x);
-fprintf (fid,'  2  ----------------------------  Start-y =   %5.4f\n',min_y);
-fprintf (fid,'  3  --------------------------   Finish-x =    %3.5f\n',max_x);
-fprintf (fid,'  4  --------------------------   Finish-y =   %5.4f\n',max_y);
+fprintf (fid,'  1  ----------------------------  Start-x =    %3.5f\n',str2double(minx_txt.Value{1}));
+fprintf (fid,'  2  ----------------------------  Start-y =   %5.4f\n',str2double(miny_txt.Value{1}));
+fprintf (fid,'  3  --------------------------   Finish-x =    %3.5f\n',str2double(maxx_txt.Value{1}));
+fprintf (fid,'  4  --------------------------   Finish-y =   %5.4f\n',str2double(maxy_txt.Value{1}));
 fprintf (fid,'  5  ------------------------  x-increment =      %2.4f\n',COUL_GRID_SIZE);
 fprintf (fid,'  6  ------------------------  y-increment =      %2.4f\n',COUL_GRID_SIZE);
 fprintf (fid,'     Size Parameters\n');
@@ -364,10 +378,10 @@ fprintf (fid,'  2  --------------  Shade/Color increment =     1.000000\n');
 fprintf (fid,'  3  ------  Exaggeration for disp.& dist. =     150000.0\n');
 fprintf (fid,'\n');
 fprintf (fid,'Cross section default\n');
-fprintf (fid,'  1  ----------------------------  Start-x =   %3.5f\n',min_x);
-fprintf (fid,'  2  ----------------------------  Start-y =   %4.4f\n',min_y);
-fprintf (fid,'  3  --------------------------   Finish-x =   %3.5f\n',max_x);
-fprintf (fid,'  4  --------------------------   Finish-y =   %4.4f\n',max_y);
+fprintf (fid,'  1  ----------------------------  Start-x =   %3.5f\n',str2double(minx_txt.Value{1}));
+fprintf (fid,'  2  ----------------------------  Start-y =   %4.4f\n',str2double(miny_txt.Value{1}));
+fprintf (fid,'  3  --------------------------   Finish-x =   %3.5f\n',str2double(maxx_txt.Value{1}));
+fprintf (fid,'  4  --------------------------   Finish-y =   %4.4f\n',str2double(maxy_txt.Value{1}));
 fprintf (fid,'  5  ------------------  Distant-increment =      %2.4f\n',COUL_GRID_SIZE);
 fprintf (fid,'  6  ----------------------------  Z-depth =     20.00000\n');
 fprintf (fid,'  7  ------------------------  Z-increment =      %2.4f\n',COUL_GRID_SIZE);

@@ -7,7 +7,7 @@ imp_fig = uifigure('Name','3D-Faults - Fault Import','Position',[200 200 830 520
 uilabel(imp_fig,'Position',[60 480 710 40],'Text','3D-Faults','FontSize',26,'FontWeight','bold','FontName','Cambria','FontColor','black','HorizontalAlignment','center');
 version_desc = sprintf(strcat('A code to build complex 3D fault networks and slip distributions for use with Coulomb 3.3 software. \n',...
     'Written by Zoe Mildon and Manuel Diercks \n',...
-    'Version 2.9.2 - 03/2026'));
+    'Version 2.9.3 - 04/2026'));
 uilabel(imp_fig,'Position',[60 410 710 50],'Text',version_desc,'FontName','Cambria','FontColor','black','FontSize',13);
 
 %import button panel

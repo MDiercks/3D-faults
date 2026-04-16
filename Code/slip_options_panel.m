@@ -1,4 +1,5 @@
-%window for setting the slip distribution options
+% window for setting the slip distribution options - coseismic slip distributions (04/2026)
+
 centre_horizontal = fault_length/2;
 input_check = true;
 update_function = strcat('input_check = slip_opts_update(sl_centre_hor,sp_end,sp_start,l_lbl,txt_hor,sp_rupt_top,sp_centre_ver,sp_rupt_bot,warn_lbl,surfSlip_lbl,set_surfSlip,maxSlip_lbl,btn_ok,mw_lbl,btn_mw,sliptype_dd);',...
@@ -39,7 +40,7 @@ btn_mw = uibutton(slip_fig,'Position',[160 100 50 20],'Text','Mw','ButtonPushedF
 
 % slip type dropdown option - new option added by ZM Jan 2026
 uilabel(slip_fig,'Position',[350 160 140 20],'Text','Slip distribution type');
-sliptype_dd = uidropdown(slip_fig,'Position',[350 130 140 20],'Items',{'Bulls-eye (for normal/thrust)','Elongated bulls-eye (for strike-slip)','Triangular (backslip)','Custom (csv-import)'},'ValueChangedFcn',update_function);
+sliptype_dd = uidropdown(slip_fig,'Position',[350 130 140 20],'Items',{'Bulls-eye (for normal/thrust)','Elongated bulls-eye (for strike-slip)','Custom (csv-import)'},'ValueChangedFcn',update_function);
 
 %% plot 2d-preview of slip distribution/adjust slip properties
 slip_ax = uiaxes(slip_fig,'Position',[50 200 440 250],'Color',[1 1 1],'Color',[.95 .95 .95]);
