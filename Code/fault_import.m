@@ -124,6 +124,21 @@ for i = 1:size(fault_input,1) %replace space by underscore in fault names
     fault_input.fault_name{i} = strrep(fault_input.fault_name{i},' ','_');
 end
 
+% check for duplicate fault names and make them unique by appending an index
+[uniqueNames, ~, idx] = unique(fault_input.fault_name, 'stable');
+counts = accumarray(idx,1);
+if any(counts > 1)
+    dupNames = uniqueNames(counts > 1);
+    for k = 1:length(dupNames)
+        rows = find(strcmp(fault_input.fault_name, dupNames{k}));
+        for n = 1:length(rows)
+            if n > 1
+                fault_input.fault_name{rows(n)} = sprintf('%s_%d', dupNames{k}, n);
+            end
+        end
+    end
+end
+
 %build the table t to be plotted in the uitable (coordinates remain stored in fault_input)
 t = fault_input(:,variables);
 t.len = zeros(length(t.fault_name),1);
