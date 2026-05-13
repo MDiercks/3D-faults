@@ -17,9 +17,9 @@ end
 %% check slip type & call functions
 switch sliptype_dd.Value
     case 'Bulls-eye (for normal/thrust)'
-        slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
+        slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
     case 'Elongated bulls-eye (for strike-slip)'
-        slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
+        slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
     case 'Triangular (backslip)'
         slip_distribution = slipdist_triangular(max_slip,x_points);
     case 'Custom (csv-import)'
@@ -33,22 +33,23 @@ imagesc(slip_ax,slip_distribution)
 % Given a maximum slip value, which is assigned to the centre of the fault this script will calculate a 
 % triangular slip distribution (slip vs distance along the fault) which will then be applied to gridded fault.
 
-function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
+function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
     slip_distribution=zeros(size(x_points) - [1 1]); % generates a blank matrix for slip_distribution to be put into
+    grid_size = grid_size*1000;
     L=length(x_points(1,:));
-    d2=grid_sizem/2;
+    d2=grid_size/2;
     if length(x_points(:,1))>=3
         for i=1:L-3
-            d(i)=d2+grid_sizem*i;
+            d(i)=d2+grid_size*i;
         end
     end
     
     % Calculate the distances of all the mid-points of elements
     length_last=sqrt((x_points(1,L-1)-x_points(1,L))^2+(y_points(1,L-1)-y_points(1,L))^2); % length of the last grid box
     if length(x_points(1,:))>3
-	    distances=[d2,d,((L-2)*grid_sizem+length_last/2)];
+	    distances=[d2,d,((L-2)*grid_size+length_last/2)];
     elseif length(x_points(1,:))==3
-	    distances=[d2,((L-2)*grid_sizem+length_last/2)];
+	    distances=[d2,((L-2)*grid_size+length_last/2)];
     else
 	    distances=round(sl_centre_hor.Value)*1000;
     end
@@ -90,8 +91,8 @@ function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt
     patch_depth=nan(numel(mid_depths,1));
     sum_depth=zeros(numel(mid_depths,1));
     for n = 1:numel(mid_depths)
-        patch_dip(n) = 90-acosd(abs((z_points_copy(n+1,1)-z_points_copy(n,1)))/grid_sizem);
-        patch_depth(n) = cosd(90-patch_dip(n))*grid_sizem;
+        patch_dip(n) = 90-acosd(abs((z_points_copy(n+1,1)-z_points_copy(n,1)))/grid_size);
+        patch_depth(n) = cosd(90-patch_dip(n))*grid_size;
         sum_depth(n+1) = patch_depth(n) + sum_depth(n);
     end
     rupt_bot_tot = rupt_bot; rupt_top_tot = rupt_top; %total depth of rupture top/bottom
@@ -100,10 +101,10 @@ function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt
         rupt_bot_tot = max(sum_depth);
     end
     if rupt_top > max(sum_depth)
-        fprintf('Rupture top and bottom adjusted to %.0f and %.0f m\n',max(sum_depth)-2*grid_sizem,max(sum_depth))
+        fprintf('Rupture top and bottom adjusted to %.0f and %.0f m\n',max(sum_depth)-2*grid_size,max(sum_depth))
         rupt_bot_tot = max(sum_depth);
-        rupt_top_tot = max(sum_depth)-2*grid_sizem;
-        depth_distances=[rupt_top_tot;rupt_top_tot+grid_sizem;rupt_bot_tot]; 
+        rupt_top_tot = max(sum_depth)-2*grid_size;
+        depth_distances=[rupt_top_tot;rupt_top_tot+grid_size;rupt_bot_tot]; 
     end
     calc_depth = mid_depths(mid_depths > rupt_top_tot & mid_depths < rupt_bot_tot); %remove depths between rupture top and rupture bottom
     
@@ -116,7 +117,7 @@ function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt
 end
 
 %% Bulls-eye slip distribution for strike slip
-function slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_sizem,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
+function slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
     disp('Function currently missing. Please choose a different slip distribution.')
     slip_distribution = NaN;  %@Zoe, please insert code here
     
