@@ -93,6 +93,13 @@ for i = 1:size(fault_input,1)
         fault_input.X{i} = flip(fault_input.X{i});
         fault_input.Y{i} = flip(fault_input.Y{i});
     end
+    %for perfectly N-S trending faults: go from north to south
+    if fault_input.X{i}(1) == fault_input.X{i}(end)
+        if fault_input.Y{i}(1) < fault_input.Y{i}(end)
+            fault_input.X{i} = flip(fault_input.X{i});
+            fault_input.Y{i} = flip(fault_input.Y{i});
+        end
+    end
 end
 
 %check if variables in input files have correct names
@@ -161,7 +168,7 @@ end
 t = movevars(t,'source_fault','before','dip');
 t = movevars(t,'plot','after','fault_name');
 
-clearvars ans col file i imp_fig path rb1 rb2 rb_shp rb_kml rb_kmz row set_utmzone utmhemi utmzone variables %free up workspace (delete import window elements and redundant variables)
+clearvars ans col file i imp_fig path rb1 rb2 rb_shp rb_kml rb_kmz row set_utmzone utmhemi utmzone variables uniqueNames %free up workspace (delete import window elements and redundant variables)
 pause(3) %UI stops working if called before import ready, pause to avoid
 ui_main %open main window
 %% ------------------ function space -------------------------

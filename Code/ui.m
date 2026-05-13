@@ -1,7 +1,6 @@
 %setting up the import window and the blank main window
 close all
 settings = readtable('config.txt');
-COUL_GRID_SIZE = settings.value(8);
 %% set up import window
 imp_fig = uifigure('Name','3D-Faults - Fault Import','Position',[200 200 830 520],'Color',[.75 .8 .85],'Resize','off'); %import window %randi([7 10],1,3)/10
 uilabel(imp_fig,'Position',[60 480 710 40],'Text','3D-Faults','FontSize',26,'FontWeight','bold','FontName','Cambria','FontColor','black','HorizontalAlignment','center');

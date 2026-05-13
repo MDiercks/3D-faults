@@ -26,7 +26,7 @@ sp_centre_ver = uispinner(slip_fig,'Position',[440 371 80 20],'Value',set_seismo
 sp_rupt_bot = uispinner(slip_fig,'Position',[440 327 80 20],'Value',set_seismoDepth.Value,'Step',0.5,'Limits',[0 set_seismoDepth.Value],'ValueChangedFcn',update_function);
 
 warn_lbl = uilabel(slip_fig,'Position',[50 50 500 20],'Text',' ','FontColor','red','HorizontalAlignment','center');
-btn_ok = uibutton(slip_fig,'Position',[260 20 50 30],'Text','OK','ButtonPushedFcn','uiresume');
+btn_ok = uibutton(slip_fig,'Position',[260 20 50 30],'Text','OK','ButtonPushedFcn','uiresume(slip_fig)');
 
 %maximum slip and percentage at surface
 surfSlip_lbl = uilabel(slip_fig,'Position',[50 160 140 20],'Text','Slip at surface (%):');
@@ -55,5 +55,5 @@ T=[1,1,1; 1,1,0; 1,0,0];% white, yellow, red
 A=[0;1;2];
 colormap(slip_ax,interp1(A,T,linspace(0,2,101)))
 
-uiwait
+uiwait(slip_fig)
 maximum_slip = set_maxSlip.Value;
