@@ -10,8 +10,9 @@ filename = cell2mat(set_filename.Value);
 grid_size = set_grid_size.Value;
 seismo_depthm = set_seismoDepth.Value*1000;
 
-d = char(datetime); d=strrep(d,':',''); d=strrep(d,' ','_'); d=strrep(d,'-','');
-output_data_file = strcat('Output_files/',filename,'_',d,'.inr'); %set a unique filename to prevent overwriting
+% d = char(datetime); d=strrep(d,':',''); d=strrep(d,' ','_'); d=strrep(d,'-','');
+% output_data_file = strcat('Output_files/',filename,'_',d,'.inr'); %set a unique filename to prevent overwriting
+output_data_file = strcat('Output_files/',filename,'.inr');
 fid=fopen(output_data_file, 'wt');
 if fid < 0                                              %check for correct directory
     errordlg('You are not in the correct directory.')
@@ -112,8 +113,12 @@ for ii = 1:length(faults.fault_name)
     % grid_size=faults.grid_size(ii);
     
     %decide between constant and variable dip:
-    if isnumeric(faults.dip{ii}) == true
-        constant_dip = faults.dip{ii};
+    if strcmp(faults.dip{ii},'var. dip') == false
+        if ~isnumeric(faults.dip{ii})
+            constant_dip = str2double(faults.dip{ii}); %allows changing back from variable dip by entering a dip value
+        else
+            constant_dip = faults.dip{ii};
+        end
         geometry = 'constant'; dip_depth = nan;
     elseif strcmp(faults.dip{ii},'var. dip') == true
         for j = 1:length(vardip.Data.fault_name)
@@ -288,8 +293,7 @@ for ii = 1:length(faults.fault_name)
                 slip_options_panel %open the window to set all rupture parameters
                 close(slip_fig); %close the window after fetching all variables
             case 'interseismic ("backslip")'
-                backslip_ui %CONVERT TO FUNCTION CALL LATER! 
-                
+                slip_distribution = backslip_ui(x_points,fault_name,grid_size);
             case 'interseismic ("shear zone")'
                 disp('Sorry, the shear zone method is still work in progress...') %ADD SHEARZONE CODE
                 close all
@@ -321,14 +325,18 @@ for ii = 1:length(faults.fault_name)
     rake_distribution = repmat(rake_row, size(slip_distribution,1), 1);
     clearvars rake_min rake_max rake_row
     %% intersecting faults: remove (set as NaN) all patches from the slip distribution that intersect with another fault:
-    for r = 1:length(slip_distribution(:,1))
-        for c = 1:length(slip_distribution(1,:))
-            if isnan(x_points(r,c)) || isnan(x_points(r,c+1)) || (isnan(x_points(r+1,c)) && isnan(x_points(r+1,c+1)))
-                slip_distribution(r,c) = NaN;
-                rake_distribution(r,c) = NaN;
-            end            
+    if intersect_dd.Value(1) == 'b'
+        for r = 1:length(slip_distribution(:,1))
+            for c = 1:length(slip_distribution(1,:))
+                if isnan(x_points(r,c)) || isnan(x_points(r,c+1)) || (isnan(x_points(r+1,c)) && isnan(x_points(r+1,c+1)))
+                    slip_distribution(r,c) = NaN;
+                    rake_distribution(r,c) = NaN;
+                end
+            end
         end
     end
+
+    %% call patch_plotting fcn
     if faults.source_fault(ii) == true
         seismic_moment
         clearvars shearmod flength wfault slip smo dip_angle dip
@@ -371,6 +379,7 @@ for ii = 1:length(faults.fault_name)
     end
     clearvars a b c d col constant_dip delta_x delta_y delta_z dip dip_dir dx dy fault_down_dip_length fault_name geometry grid_size_depth grid_size_surface grid_size_to_depth
     clearvars idx I j k l last_point m n r rake row rows slipq tp utm_lat utm_lon utm_x utm_y utm_z x_points y_points z_points
+    clearvars slip_distribution
     set(f,'HandleVisibility','on')
     waitbar(ii/length(faults.fault_name),f,'Building 3D fault network ...');
 end

@@ -20,8 +20,6 @@ switch sliptype_dd.Value
         slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
     case 'Elongated bulls-eye (for strike-slip)'
         slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
-    case 'Triangular (backslip)'
-        slip_distribution = slipdist_triangular(max_slip,x_points);
     case 'Custom (csv-import)'
         slip_distribution = slipdist_custom(x_points);
 end
@@ -96,10 +94,10 @@ function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt
         sum_depth(n+1) = patch_depth(n) + sum_depth(n);
     end
     rupt_bot_tot = rupt_bot; rupt_top_tot = rupt_top; %total depth of rupture top/bottom
-    if rupt_bot > max(sum_depth)
-        fprintf('The code assumes a fault width/length ratio of max. 1. Due to fault length and dip max. rupture depth is %.0f m\n',max(sum_depth))
-        rupt_bot_tot = max(sum_depth);
-    end
+    % if rupt_bot > max(sum_depth) %removed, can't find the bug ... (MD 05/2026)
+    %     fprintf('The code assumes a fault width/length ratio of max. 1. Due to fault length and dip max. rupture depth is %.0f m\n',max(sum_depth))
+    %     rupt_bot_tot = max(sum_depth);
+    % end
     if rupt_top > max(sum_depth)
         fprintf('Rupture top and bottom adjusted to %.0f and %.0f m\n',max(sum_depth)-2*grid_size,max(sum_depth))
         rupt_bot_tot = max(sum_depth);
@@ -121,22 +119,6 @@ function slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,r
     disp('Function currently missing. Please choose a different slip distribution.')
     slip_distribution = NaN;  %@Zoe, please insert code here
     
-end
-
-%% Triangular slip distribution (for backslip)
-% simple slip distribution to calculate interseismic stress loading using
-% 'virtual negative displacements ('back-slip' method; Deng & Sykes, 1997)
-function slip_distribution = slipdist_triangular(max_slip,x_points)
-    slip_distribution=zeros(size(x_points) - [1 1]);
-    slip_rate = max_slip/1000;
-    half_len = linspace(0,slip_rate,round(size(slip_distribution,2)/2));
-    comp_len = [half_len, flip(half_len)];
-    if length(comp_len) > size(slip_distribution,2)
-        comp_len(length(half_len)) = [];
-    end
-    for i = 1:size(slip_distribution,1)
-        slip_distribution(i,:) = comp_len;
-    end
 end
 
 %% custom slip distribution from csv file

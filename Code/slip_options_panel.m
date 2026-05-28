@@ -50,6 +50,8 @@ c = colorbar(slip_ax,'southoutside');
 c.Label.String = 'slip (m)';
 axis(slip_ax,'equal')
 xlabel(slip_ax,'distance (km)')
+xt = slip_ax.XTick;                             % numeric tick positions
+slip_ax.XTickLabel = string(round(xt * grid_size));            % set new labels (string array)
 % Colour map for slip distribution
 T=[1,1,1; 1,1,0; 1,0,0];% white, yellow, red
 A=[0;1;2];
