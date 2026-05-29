@@ -1,4 +1,6 @@
+function [amo,mw] = seismic_moment(geometry,constant_dip,dip_angle,num_dip,slip_distribution,x_points,y_points,z_points)
 % Calculating the seismic moment of the assigned slip distribution. Adapted from seis_moment Coulomb code.
+
 amo=0.0;
 switch geometry
     case 'variable'

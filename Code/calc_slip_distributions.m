@@ -17,11 +17,11 @@ end
 %% check slip type & call functions
 switch sliptype_dd.Value
     case 'Bulls-eye (for normal/thrust)'
-        slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
+        slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth);
     case 'Elongated bulls-eye (for strike-slip)'
-        slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth);
+        slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth);
     case 'Custom (csv-import)'
-        slip_distribution = slipdist_custom(x_points);
+        [slip_distribution,x_points,y_points,z_points] = slipdist_custom(x_points,y_points,z_points);
 end
 
 %% plot slip distribution preview
@@ -31,7 +31,7 @@ imagesc(slip_ax,slip_distribution)
 % Given a maximum slip value, which is assigned to the centre of the fault this script will calculate a 
 % triangular slip distribution (slip vs distance along the fault) which will then be applied to gridded fault.
 
-function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
+function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth)
     slip_distribution=zeros(size(x_points) - [1 1]); % generates a blank matrix for slip_distribution to be put into
     grid_size = grid_size*1000;
     L=length(x_points(1,:));
@@ -81,7 +81,7 @@ function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt
     
     % Calculating the depth of the middle of all the elements, works for both variable and planar dip cases
     for h=1:length(z_points(:,1))-1
-	    mid_depths(h,1)=-(z_points_copy(h,1)+z_points_copy(h+1,1))/2;
+	    mid_depths(h,1)=-(z_points(h,1)+z_points(h+1,1))/2;
     end  
     
     %remove depths between rupture top and rupture bottom
@@ -89,7 +89,7 @@ function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt
     patch_depth=nan(numel(mid_depths,1));
     sum_depth=zeros(numel(mid_depths,1));
     for n = 1:numel(mid_depths)
-        patch_dip(n) = 90-acosd(abs((z_points_copy(n+1,1)-z_points_copy(n,1)))/grid_size);
+        patch_dip(n) = 90-acosd(abs((z_points(n+1,1)-z_points(n,1)))/grid_size);
         patch_depth(n) = cosd(90-patch_dip(n))*grid_size;
         sum_depth(n+1) = patch_depth(n) + sum_depth(n);
     end
@@ -115,7 +115,7 @@ function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt
 end
 
 %% Bulls-eye slip distribution for strike slip
-function slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,z_points_copy,geometry,dip_depth)
+function slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth)
     disp('Function currently missing. Please choose a different slip distribution.')
     slip_distribution = NaN;  %@Zoe, please insert code here
     
@@ -125,14 +125,24 @@ end
 %import a custom slip distribution; must be imported as a list of
 %values with the same number of elements as the modelled fault!
 
-function slip_distribution = slipdist_custom(x_points)
-    disp('Import the slip distribution from a .csv-file.')
-    [slip_file,slip_file_path] = uigetfile('*.csv');
-    custom_slip = readmatrix(fullfile(slip_file_path,slip_file));
-    slip_distribution=zeros(size(x_points) - [1 1]);
-    if numel(slip_distribution) ~= numel(custom_slip)
-        errordlg('Number of elements in imported slip vector must match number of elements of modelled fault geometry!')
-        return
+function [slip_distribution,x_points,y_points,z_points] = slipdist_custom(x_points,y_points,z_points)
+    % if custom_slip_loaded == true
+    %     return
+    % end
+    [file,path] = uigetfile({'*.xlsx;*.xls','Excel Files (*.xlsx, *.xls)';'*.csv','csv file'; '*.*','All Files'}, 'Select csv or excel file');
+    custom_slip = readmatrix(fullfile(path,file));
+    if all(custom_slip(1,1:end) == 1:size(custom_slip,2))
+        custom_slip(1,:) = []; %discard top line
+        disp('Ignoring first line (header) of custom slip file.')
     end
-    slip_distribution = reshape(custom_slip, size(slip_distribution,1), size(slip_distribution,2));
+    % resample x_points, Y_points, z_points to match size of custom_slip (not impacting fault dimensions)
+    if ~all(size(x_points)-1 == size(custom_slip))
+    [X,Y] = meshgrid(1:size(x_points,2),1:size(x_points,1));
+    [Xq,Vq] = meshgrid(linspace(1,size(x_points,2),size(custom_slip,2)+1), linspace(1,size(x_points,1),size(custom_slip,1)+1));
+    x_points = interp2(X, Y, x_points, Xq, Vq, 'linear');
+    y_points = interp2(X, Y, y_points, Xq, Vq, 'linear');
+    z_points = interp2(X, Y, z_points, Xq, Vq, 'linear');
+    end
+    slip_distribution = custom_slip;
+    % custom_slip_loaded = true;
 end

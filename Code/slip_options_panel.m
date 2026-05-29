@@ -2,7 +2,7 @@
 
 centre_horizontal = fault_length/2;
 input_check = true;
-update_function = strcat('input_check = slip_opts_update(sl_centre_hor,sp_end,sp_start,l_lbl,txt_hor,sp_rupt_top,sp_centre_ver,sp_rupt_bot,warn_lbl,surfSlip_lbl,set_surfSlip,maxSlip_lbl,btn_ok,mw_lbl,btn_mw,sliptype_dd);',...
+update_function = strcat('input_check = slip_opts_update(sl_centre_hor,sp_end,sp_start,l_lbl,txt_hor,sp_rupt_top,sp_centre_ver,sp_rupt_bot,warn_lbl,set_surfSlip,btn_ok);',...
     'calc_slip_distributions');
     
 slip_fig = uifigure('WindowStyle','modal','Position',[100 100 570 600]);
@@ -34,28 +34,44 @@ maxSlip_lbl = uilabel(slip_fig,'Position',[50 130 140 20],'Text','Maximum slip (
 set_surfSlip = uispinner(slip_fig,'Position',[160 160 60 20],'Step',5,'Limits',[0 100],'Value',settings.value(1),'ValueChangedFcn',update_function,'Tooltip','Slip at surface, percentage of max. slip');
 set_maxSlip = uispinner(slip_fig,'Position',[160 130 60 20],'Step',0.1,'Limits',[0 inf],'Value',settings.value(2),'ValueChangedFcn',update_function,'Tooltip','maximum slip at the centre of the bulls eye slip distribution');
 
-%moment magnitude button
-mw_lbl = uilabel(slip_fig,'Position',[50 100 140 20],'Text','Calculate Mw:');
-btn_mw = uibutton(slip_fig,'Position',[160 100 50 20],'Text','Mw','ButtonPushedFcn','prelim_mw','Tooltip','note: If button stops working, click any other element');
-
 % slip type dropdown option - new option added by ZM Jan 2026
 uilabel(slip_fig,'Position',[350 160 140 20],'Text','Slip distribution type');
 sliptype_dd = uidropdown(slip_fig,'Position',[350 130 140 20],'Items',{'Bulls-eye (for normal/thrust)','Elongated bulls-eye (for strike-slip)','Custom (csv-import)'},'ValueChangedFcn',update_function);
 
-%% plot 2d-preview of slip distribution/adjust slip properties
+% axes for 2D-preview
 slip_ax = uiaxes(slip_fig,'Position',[50 200 440 250],'Color',[1 1 1],'Color',[.95 .95 .95]);
-ylim(slip_ax,[0 inf])
 calc_slip_distributions;
+
+%moment magnitude button
+mw_lbl = uilabel(slip_fig,'Position',[50 100 140 20],'Text','Calculate Mw:');
+btn_mw = uibutton(slip_fig,'Position',[160 100 50 20],'Text','Mw',...
+    'ButtonPushedFcn',@(btn,evt) localWrapper_mw(btn,evt,geometry,constant_dip,dip_angle,num_dip,slip_distribution,x_points,y_points,z_points),...
+    'Tooltip','Calculate preliminary magnitude. Note: Mw can change with intersecting faults.');
+
+% configuration of2d-preview plot:
+ylim(slip_ax,[0 inf])
 c = colorbar(slip_ax,'southoutside');
 c.Label.String = 'slip (m)';
 axis(slip_ax,'equal')
 xlabel(slip_ax,'distance (km)')
-xt = slip_ax.XTick;                             % numeric tick positions
-slip_ax.XTickLabel = string(round(xt * grid_size));            % set new labels (string array)
+xt = slip_ax.XTick;
+slip_ax.XTickLabel = string(round(xt * grid_size)); % adjust tick labels to grid_size
 % Colour map for slip distribution
 T=[1,1,1; 1,1,0; 1,0,0];% white, yellow, red
 A=[0;1;2];
 colormap(slip_ax,interp1(A,T,linspace(0,2,101)))
 
+% wait for user input, resume with OK-button
 uiwait(slip_fig)
 maximum_slip = set_maxSlip.Value;
+
+%% callbacks and other functions
+function localWrapper_mw(~,~,geometry,constant_dip,dip_angle,num_dip,slip_distribution,x_points,y_points,z_points)
+    prelim_mw(geometry,constant_dip,dip_angle,num_dip,slip_distribution,x_points,y_points,z_points);
+end
+
+function mw = prelim_mw(geometry,constant_dip,dip_angle,num_dip,slip_distribution,x_points,y_points,z_points)
+    [amo,mw] = seismic_moment(geometry,constant_dip,dip_angle,num_dip,slip_distribution,x_points,y_points,z_points);
+    msgbox(sprintf('Total seismic moment = %6.2e dyne cm | Mw %.2f (preliminary)', amo, mw))
+    disp('(Preliminary Mw; May change depending on intersecting faults.')
+end

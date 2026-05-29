@@ -37,7 +37,7 @@ end
 xyz(find(isnan(xyz(:,1)),1,'first'):end,:) = [];
 if subplot_cb.Value == true || faults.source_fault(ii) == true
     %create plot
-    hold('on')
+    hold(fax,'on')
     plot(fax,utm_lon,utm_lat,'g','LineWidth',2);
     axis(fax,'equal')
     view(fax,3)

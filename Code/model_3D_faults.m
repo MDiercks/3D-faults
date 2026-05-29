@@ -113,6 +113,8 @@ for ii = 1:length(faults.fault_name)
     % grid_size=faults.grid_size(ii);
     
     %decide between constant and variable dip:
+    num_dip = nan(1,100);%pre-allocate arrays for dip values
+    dip_angle = nan(1,100);
     if strcmp(faults.dip{ii},'var. dip') == false
         if ~isnumeric(faults.dip{ii})
             constant_dip = str2double(faults.dip{ii}); %allows changing back from variable dip by entering a dip value
@@ -212,8 +214,7 @@ for ii = 1:length(faults.fault_name)
             x_points=utm_x;
             y_points=utm_y;
             z_points=utm_z; 
-            num_dip = nan(1,100);%pre-allocate arrays for dip values
-            dip_angle = nan(1,100);
+            
             for j=1:length(dip_depth(:,1))-1
                 constant_dip=dip_values(j);
                 depth1=dip_depth(j+1);
@@ -275,16 +276,11 @@ for ii = 1:length(faults.fault_name)
             num_dip(isnan(num_dip)) = [];
             dip_angle(isnan(dip_angle)) = [];
     end
-    %% intersecting faults: preparation and call intersect_faults function
-    %copy x_points, y_points, z_points so that original values can be manipulated by intersect_faults code
-    x_points_copy = x_points;
-    y_points_copy = y_points;
-    z_points_copy = z_points;
-    % detect and remove intersecting fault elements
-    if intersect_dd.Value(1) == 'b'
-        [ccmatrix,x_points,y_points,z_points] = intersect_faults(x_points,y_points,z_points,ccmatrix,grid_size,ii,faults,intersect_dd); %call intersecting faults function
-    end
     
+    x_points_old = x_points;
+    y_points_old = y_points;
+    z_points_old = z_points;
+
 %% Calculating the slip distribution. Options included - Updated interface 01/2023 / 05/2026
     if faults.source_fault(ii) == true
         fprintf('Source fault: %s \n',fault_name)
@@ -300,10 +296,20 @@ for ii = 1:length(faults.fault_name)
                 return
         end
     elseif faults.source_fault(ii) == false
-        slip_distribution=zeros((length(z_points_copy(:,1))-1),(length(x_points_copy(1,:))-1)); % creates a slip of 0 for faults without movement
+        slip_distribution=zeros((length(z_points(:,1))-1),(length(x_points(1,:))-1)); % creates a slip of 0 for faults without movement
     end
     if ii == 1 && slip_distribution(1,1) == 0
         slip_distribution(1,1) = 0.000001; %assign a small value to the first element to fix the issue with Coulomb code
+    end
+
+    %% intersecting faults: preparation and call intersect_faults function
+    %copy x_points, y_points, z_points so that original values can be manipulated by intersect_faults code
+    x_points_copy = x_points;
+    y_points_copy = y_points;
+    z_points_copy = z_points;
+    % detect and remove intersecting fault elements
+    if intersect_dd.Value(1) == 'b'
+        [ccmatrix,x_points,y_points,z_points] = intersect_faults(x_points,y_points,z_points,ccmatrix,grid_size,ii,faults,intersect_dd); %call intersecting faults function
     end
 
     %% Calculate rake distribution for converging / diverging slip vectors
@@ -336,9 +342,9 @@ for ii = 1:length(faults.fault_name)
         end
     end
 
-    %% call patch_plotting fcn
+    %% calc final magnitude and call patch_plotting fcn
     if faults.source_fault(ii) == true
-        seismic_moment
+        [amo,mw] = seismic_moment(geometry,constant_dip,dip_angle,num_dip,slip_distribution,x_points,y_points,z_points);
         clearvars shearmod flength wfault slip smo dip_angle dip
     end
     patch_count = patch_count + numel(slip_distribution) - nnz(isnan(slip_distribution));
