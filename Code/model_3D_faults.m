@@ -286,8 +286,7 @@ for ii = 1:length(faults.fault_name)
         fprintf('Source fault: %s \n',fault_name)
         switch slipdist_dd.Value
             case 'coseismic'
-                slip_options_panel %open the window to set all rupture parameters
-                close(slip_fig); %close the window after fetching all variables
+                slip_distribution = slip_options_panel(fault_name,x_points,y_points,z_points,grid_size,geometry,constant_dip,dip_angle,num_dip,dip_depth,fault_length,set_seismoDepth,settings);
             case 'interseismic ("backslip")'
                 slip_distribution = backslip_ui(x_points,fault_name,grid_size);
             case 'interseismic ("shear zone")'

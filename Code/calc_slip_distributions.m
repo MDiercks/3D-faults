@@ -1,3 +1,5 @@
+function slip_distribution = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd)
+
 % code to select and calculate slip distributions (functions below)
 
 %% fetch variables:
@@ -25,7 +27,7 @@ switch sliptype_dd.Value
 end
 
 %% plot slip distribution preview
-imagesc(slip_ax,slip_distribution)
+% imagesc(slip_ax,slip_distribution)
 
 %% Bulls eye (concentric) slip distribution for normal/thrust
 % Given a maximum slip value, which is assigned to the centre of the fault this script will calculate a 
@@ -145,4 +147,6 @@ function [slip_distribution,x_points,y_points,z_points] = slipdist_custom(x_poin
     end
     slip_distribution = custom_slip;
     % custom_slip_loaded = true;
+end
+
 end
