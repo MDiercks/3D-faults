@@ -1,5 +1,5 @@
 % window for setting the slip distribution options - coseismic slip distributions (updated 05/2026)
-function slip_distribution = slip_options_panel(fault_name,x_points,y_points,z_points,grid_size,geometry,constant_dip,dip_angle,num_dip,dip_depth,fault_length,set_seismoDepth,settings)
+function slip_options_panel(fault_name,x_points,y_points,z_points,grid_size,geometry,constant_dip,dip_angle,num_dip,dip_depth,fault_length,set_seismoDepth,settings)
 
 centre_horizontal = fault_length/2;
 input_check = true;
@@ -72,6 +72,8 @@ set(btn_mw,'ButtonPushedFcn',@(btn,evt) localWrapper_mw(btn,evt, input_check, sl
 
 %% wait for user input, resume with OK-button
 uiwait(slip_fig)
+panel_update(NaN,NaN,input_check,slip_ax,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,l_lbl,txt_hor,sp_rupt_top,sp_centre_ver,sp_rupt_bot,warn_lbl,set_surfSlip,set_maxSlip,btn_ok,sliptype_dd) %serves as localWrapper
+
 if isvalid(slip_fig)
     % gather outputs if needed, then ensure closed
     delete(slip_fig);
