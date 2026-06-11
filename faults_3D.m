@@ -1,4 +1,4 @@
-%% 3D-Faults v. 2.10.04 | 06/2026
+%% 3D-Faults v. 2.10.05 | 06/2026
 %
 % Software to plot 3D-faults from surface traces, assign slip distributions and export for use in Coulomb 3.3 software
 % 
@@ -15,7 +15,7 @@
 % Geophys. Res. Lett., 43, doi:10.1002/2016GL071128.
 % 
 % version 1 written by Zoe Mildon, 2016
-% version 2 written in 2021-2024 by Manuel Diercks and Zoe Mildon
+% version 2 written since 2021 by Manuel Diercks and Zoe Mildon
 %
 % For updates check github.com/MDiercks/
 % For bug reports or queries please contact diercks@geowi.uni-hannover.de
