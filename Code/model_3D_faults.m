@@ -27,6 +27,8 @@ faults.X = cell(length(uit.Data.plot),1);
 faults.Y = cell(length(uit.Data.plot),1);
 for ii = 1:length(uit.Data.plot)
     idx = find(strcmp(uit.Data.fault_name(ii),fault_input.fault_name));
+    fault_input.X{idx} = unique(fault_input.X{idx}); %fix plotting error if coordinates are non-unique
+    fault_input.Y{idx} = unique(fault_input.Y{idx});
     faults.X(ii) = fault_input.X(idx);
     faults.Y(ii) = fault_input.Y(idx);
 end
@@ -277,10 +279,6 @@ for ii = 1:length(faults.fault_name)
             dip_angle(isnan(dip_angle)) = [];
     end
     
-    x_points_old = x_points;
-    y_points_old = y_points;
-    z_points_old = z_points;
-
 %% Calculating the slip distribution. Options included - Updated interface 01/2023 / 05/2026
     if faults.source_fault(ii) == true
         fprintf('Source fault: %s \n',fault_name)

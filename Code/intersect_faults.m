@@ -62,13 +62,15 @@ end
 mx_points = interp2(X,Y,x_points,Xq,Yq);
 my_points = interp2(X,Y,y_points,Xq,Yq);
 mz_points = interp2(X,Y,z_points,Xq,Yq);
-
 last_idx = nnz(~isnan(ccmatrix(:,1)));
 mx_points(isnan(mx_points)) = [];
 my_points(isnan(my_points)) = [];
 mz_points(isnan(mz_points)) = [];
 ccmatrix(last_idx+1:last_idx+numel(mx_points),1) = mx_points(1:end);
 ccmatrix(last_idx+1:last_idx+numel(mx_points),2) = my_points(1:end);
+numel(mx_points)
+numel(mz_points)
+
 ccmatrix(last_idx+1:last_idx+numel(mx_points),3) = abs(mz_points(1:end));
 ccmatrix(last_idx+1:last_idx+numel(mx_points),4) = fault_id;
 % scatter3(fax,ccmatrix(1:last_idx,1),ccmatrix(1:last_idx,2),-ccmatrix(1:last_idx,3),5,'k','filled','o'); %plot the intersection grid (FOR DEBUGGING)
