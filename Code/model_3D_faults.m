@@ -27,8 +27,8 @@ faults.X = cell(length(uit.Data.plot),1);
 faults.Y = cell(length(uit.Data.plot),1);
 for ii = 1:length(uit.Data.plot)
     idx = find(strcmp(uit.Data.fault_name(ii),fault_input.fault_name));
-    fault_input.X{idx} = unique(fault_input.X{idx}); %fix plotting error if coordinates are non-unique
-    fault_input.Y{idx} = unique(fault_input.Y{idx});
+    fault_input.X{idx} = unique(fault_input.X{idx},'stable'); %fix plotting error if coordinates are non-unique
+    fault_input.Y{idx} = unique(fault_input.Y{idx},'stable');
     faults.X(ii) = fault_input.X(idx);
     faults.Y(ii) = fault_input.Y(idx);
 end
