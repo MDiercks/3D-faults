@@ -43,8 +43,6 @@ sliptype_dd = uidropdown(slip_fig,'Position',[350 130 140 20],'Items',{'Bulls-ey
 slip_ax = uiaxes(slip_fig,'Position',[50 200 440 250],'Color',[1 1 1],'Color',[.95 .95 .95]);
 slip_distribution = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd);
 imagesc(slip_ax,0:grid_size:size(slip_distribution,2),0:grid_size:size(slip_distribution,1),slip_distribution)
-% xlim(slip_ax,[0 size(slip_distribution,2)*grid_size])
-% slip_ax.XLimMode = "manual";
 
 %moment magnitude button
 mw_lbl = uilabel(slip_fig,'Position',[50 100 140 20],'Text','Calculate Mw:');
@@ -59,6 +57,9 @@ xlabel(slip_ax,'distance (km)')
 
 xt = slip_ax.XTick;
 slip_ax.XTickLabel = string(round(xt)*grid_size); % adjust tick labels to grid_size
+yt = slip_ax.YTick;
+slip_ax.YTickLabel = string(round(yt)*grid_size);
+
 % Colour map for slip distribution
 T=[1,1,1; 1,1,0; 1,0,0];% white, yellow, red
 A=[0;1;2];
