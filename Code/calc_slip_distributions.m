@@ -19,9 +19,9 @@ end
 %% check slip type & call functions
 switch sliptype_dd.Value
     case 'Bulls-eye (for normal/thrust)'
-        slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth);
+        slip_distribution = slipdist_bulls_eye(true,start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth);
     case 'Elongated bulls-eye (for strike-slip)'
-        slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth);
+        slip_distribution = slipdist_bulls_eye(false,start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth);
     case 'Custom (csv-import)'
         [slip_distribution,x_points,y_points,z_points] = slipdist_custom(x_points,y_points,z_points);
 end
@@ -33,7 +33,7 @@ end
 % Given a maximum slip value, which is assigned to the centre of the fault this script will calculate a 
 % triangular slip distribution (slip vs distance along the fault) which will then be applied to gridded fault.
 
-function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth)
+function slip_distribution = slipdist_bulls_eye(dipslip,start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth)
     slip_distribution=zeros(size(x_points) - [1 1]); % generates a blank matrix for slip_distribution to be put into
     grid_size = grid_size*1000;
     L=length(x_points(1,:));
@@ -61,9 +61,14 @@ function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt
     slip_distances=sort(slip_distances);
     slip_distances=slip_distances.';
     
-    slip_values=[0;max_slip;0];
-        
-    data_distances=[start_slip*1000;centre_hor;end_slip*1000];
+    if dipslip == true %deciding between standard dip-slip slip distributions and elongated for strike-slip
+        slip_values=[0;max_slip;0];
+        data_distances=[start_slip*1000;centre_hor;end_slip*1000];
+    elseif dipslip == false
+        slip_values=[0;max_slip;max_slip;0];
+        rupture_length=(end_slip*1000)-(start_slip*1000);
+        data_distances=[start_slip*1000;(start_slip*1000)+0.1*rupture_length;(end_slip*1000)-0.1*rupture_length;end_slip*1000]; % create elongated slip distribution for strike-slip earthquakes
+    end
     slipsx=interp1(data_distances,slip_values,slip_distances);
     slips=slipsx.';
     
@@ -116,16 +121,10 @@ function slip_distribution = slipdist_bulls_eye_dipslip(start_slip,end_slip,rupt
     slip_distribution(row_idx:(row_idx+length(calc_depth)-1),col_idx(1):col_idx(end))=slip_dist; % Putting slip_dist matrix into the zeros matrix previously set up
 end
 
-%% Bulls-eye slip distribution for strike slip
-function slip_distribution = slipdist_bulls_eye_strikeslip(start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth)
-    disp('Function currently missing. Please choose a different slip distribution.')
-    slip_distribution = NaN;  %@Zoe, please insert code here
-    
-end
-
 %% custom slip distribution from csv file
-%import a custom slip distribution; must be imported as a list of
-%values with the same number of elements as the modelled fault!
+%import a custom slip distribution; must be imported as a table of values; 
+%grid size of the 3D-Fault is adjusted to the number of rows/columns of the slip distribution
+%add zeros to the slip distribution to achieve partial rupture of a fault
 
 function [slip_distribution,x_points,y_points,z_points] = slipdist_custom(x_points,y_points,z_points)
     % if custom_slip_loaded == true

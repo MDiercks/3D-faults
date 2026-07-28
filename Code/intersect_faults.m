@@ -3,7 +3,7 @@
 % updated 05/2026; M. Diercks
 function [ccmatrix,x_points,y_points,z_points] = intersect_faults(x_points,y_points,z_points,ccmatrix,grid_size,ii,faults,intersect_dd)
 fault_id = ii; %assigns a specific id to each fault
-min_distance = grid_size/3; %all patches closer than 1/3 of a grid size are removed
+min_distance = grid_size/2.35; %all patches closer than 1/3 of a grid size are removed
 
 %find all values that are close to an existing x, y and z-coordinate triplet:
 for k = 1:numel(x_points)
@@ -68,8 +68,6 @@ my_points(isnan(my_points)) = [];
 mz_points(isnan(mz_points)) = [];
 ccmatrix(last_idx+1:last_idx+numel(mx_points),1) = mx_points(1:end);
 ccmatrix(last_idx+1:last_idx+numel(mx_points),2) = my_points(1:end);
-numel(mx_points)
-numel(mz_points)
 
 ccmatrix(last_idx+1:last_idx+numel(mx_points),3) = abs(mz_points(1:end));
 ccmatrix(last_idx+1:last_idx+numel(mx_points),4) = fault_id;

@@ -6,7 +6,7 @@ input_check = true;
 slip_distribution=zeros(size(x_points) - [1 1]);
 
 %% set up user interface    
-slip_fig = uifigure('WindowStyle','modal','Position',[100 100 570 600]);
+slip_fig = uifigure('WindowStyle','modal','Position',[100 100 570 600],'Resize','off');
 uilabel(slip_fig,'Position',[10 570 550 20],'Text',strcat('Source fault: ',fault_name),'FontSize',14,'FontWeight','bold','HorizontalAlignment','center');
 uilabel(slip_fig,'Position',[10 540 550 20],'Text','Set the rupture segment (default: entire fault ruptures)','HorizontalAlignment','center');
 
@@ -42,7 +42,9 @@ sliptype_dd = uidropdown(slip_fig,'Position',[350 130 140 20],'Items',{'Bulls-ey
 % axes for 2D-preview
 slip_ax = uiaxes(slip_fig,'Position',[50 200 440 250],'Color',[1 1 1],'Color',[.95 .95 .95]);
 slip_distribution = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd);
-imagesc(slip_ax,slip_distribution)
+imagesc(slip_ax,0:grid_size:size(slip_distribution,2),0:grid_size:size(slip_distribution,1),slip_distribution)
+% xlim(slip_ax,[0 size(slip_distribution,2)*grid_size])
+% slip_ax.XLimMode = "manual";
 
 %moment magnitude button
 mw_lbl = uilabel(slip_fig,'Position',[50 100 140 20],'Text','Calculate Mw:');
@@ -50,13 +52,13 @@ btn_mw = uibutton(slip_fig,'Position',[160 100 50 20],'Text','Mw',...
     'Tooltip','Calculate preliminary magnitude. Note: Mw can change with intersecting faults.');
 
 % configuration of 2d-preview plot:
-ylim(slip_ax,[0 inf])
 c = colorbar(slip_ax,'southoutside');
 c.Label.String = 'slip (m)';
 axis(slip_ax,'equal')
 xlabel(slip_ax,'distance (km)')
+
 xt = slip_ax.XTick;
-slip_ax.XTickLabel = string(round(xt * grid_size)); % adjust tick labels to grid_size
+slip_ax.XTickLabel = string(round(xt)*grid_size); % adjust tick labels to grid_size
 % Colour map for slip distribution
 T=[1,1,1; 1,1,0; 1,0,0];% white, yellow, red
 A=[0;1;2];
