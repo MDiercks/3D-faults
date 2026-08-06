@@ -5,6 +5,8 @@ centre_horizontal = fault_length/2;
 input_check = true;
 slip_distribution=zeros(size(x_points) - [1 1]);
 
+custom_slip_loaded = false;
+
 %% set up user interface    
 slip_fig = uifigure('WindowStyle','modal','Position',[100 100 570 600],'Resize','off');
 uilabel(slip_fig,'Position',[10 570 550 20],'Text',strcat('Source fault: ',fault_name),'FontSize',14,'FontWeight','bold','HorizontalAlignment','center');
@@ -41,7 +43,7 @@ sliptype_dd = uidropdown(slip_fig,'Position',[350 130 140 20],'Items',{'Bulls-ey
 
 % axes for 2D-preview
 slip_ax = uiaxes(slip_fig,'Position',[50 200 440 250],'Color',[1 1 1],'Color',[.95 .95 .95]);
-slip_distribution = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd);
+[slip_distribution,custom_slip_loaded] = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd,custom_slip_loaded);
 imagesc(slip_ax,0:grid_size:size(slip_distribution,2),0:grid_size:size(slip_distribution,1),slip_distribution)
 
 %moment magnitude button
@@ -69,13 +71,13 @@ colormap(slip_ax,interp1(A,T,linspace(0,2,101)))
 ui_list = {'sp_start','sl_centre_hor','sp_end','sp_rupt_top','sp_centre_ver','sp_rupt_bot','set_surfSlip','set_maxSlip','sliptype_dd'};
 % Set the callback function for all UI elements
 for k = 1:length(ui_list)
-    eval([ui_list{k} '.ValueChangedFcn = @(src, evt) panel_update(src, evt, input_check,slip_ax, slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth, sl_centre_hor, sp_end, sp_start, l_lbl, txt_hor, sp_rupt_top, sp_centre_ver, sp_rupt_bot, warn_lbl, set_surfSlip, set_maxSlip, btn_ok, sliptype_dd);']);
+    eval([ui_list{k} '.ValueChangedFcn = @(src, evt) panel_update(src, evt, input_check,slip_ax, slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth, sl_centre_hor, sp_end, sp_start, l_lbl, txt_hor, sp_rupt_top, sp_centre_ver, sp_rupt_bot, warn_lbl, set_surfSlip, set_maxSlip, btn_ok, sliptype_dd, custom_slip_loaded);']);
 end
-set(btn_mw,'ButtonPushedFcn',@(btn,evt) localWrapper_mw(btn,evt, input_check, slip_distribution,x_points,y_points,z_points,grid_size,geometry,constant_dip,dip_angle,num_dip,dip_depth, sl_centre_hor, sp_end, sp_start, sp_rupt_top, sp_centre_ver, sp_rupt_bot, set_surfSlip, set_maxSlip, sliptype_dd));
+set(btn_mw,'ButtonPushedFcn',@(btn,evt) localWrapper_mw(btn,evt, input_check, slip_distribution,x_points,y_points,z_points,grid_size,geometry,constant_dip,dip_angle,num_dip,dip_depth, sl_centre_hor, sp_end, sp_start, sp_rupt_top, sp_centre_ver, sp_rupt_bot, set_surfSlip, set_maxSlip, sliptype_dd, custom_slip_loaded));
 
 %% wait for user input, resume with OK-button
 uiwait(slip_fig)
-panel_update(NaN,NaN,input_check,slip_ax,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,l_lbl,txt_hor,sp_rupt_top,sp_centre_ver,sp_rupt_bot,warn_lbl,set_surfSlip,set_maxSlip,btn_ok,sliptype_dd) %serves as localWrapper
+panel_update(NaN,NaN,input_check,slip_ax,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,l_lbl,txt_hor,sp_rupt_top,sp_centre_ver,sp_rupt_bot,warn_lbl,set_surfSlip,set_maxSlip,btn_ok,sliptype_dd,custom_slip_loaded) %serves as localWrapper
 
 if isvalid(slip_fig)
     % gather outputs if needed, then ensure closed
@@ -83,8 +85,8 @@ if isvalid(slip_fig)
 end
 
 %% callbacks and other functions
-function localWrapper_mw(~,~, input_check, slip_distribution,x_points,y_points,z_points,grid_size,geometry,constant_dip,dip_angle,num_dip,dip_depth, sl_centre_hor, sp_end, sp_start, sp_rupt_top, sp_centre_ver, sp_rupt_bot, set_surfSlip, set_maxSlip, sliptype_dd)
-    slip_distribution = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd);
+function localWrapper_mw(~,~, input_check, slip_distribution,x_points,y_points,z_points,grid_size,geometry,constant_dip,dip_angle,num_dip,dip_depth, sl_centre_hor, sp_end, sp_start, sp_rupt_top, sp_centre_ver, sp_rupt_bot, set_surfSlip, set_maxSlip, sliptype_dd,custom_slip_loaded)
+    [slip_distribution,custom_slip_loaded] = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd,custom_slip_loaded);
     prelim_mw(geometry,constant_dip,dip_angle,num_dip,slip_distribution,x_points,y_points,z_points);
 end
 
@@ -94,13 +96,13 @@ function mw = prelim_mw(geometry,constant_dip,dip_angle,num_dip,slip_distributio
     disp('(Preliminary Mw; May change depending on intersecting faults.)')
 end
 
-function panel_update(~,~,input_check,slip_ax,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,l_lbl,txt_hor,sp_rupt_top,sp_centre_ver,sp_rupt_bot,warn_lbl,set_surfSlip,set_maxSlip,btn_ok,sliptype_dd) %serves as localWrapper
+function panel_update(~,~,input_check,slip_ax,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,l_lbl,txt_hor,sp_rupt_top,sp_centre_ver,sp_rupt_bot,warn_lbl,set_surfSlip,set_maxSlip,btn_ok,sliptype_dd,custom_slip_loaded) %serves as localWrapper
 %optional: wrap all ui values into a single struct:
 %trigger slip_opts_update to check if inputs are valid
     [input_check,~,~,set_surfSlip,~,~] = slip_opts_update(input_check,sl_centre_hor,sp_end,sp_start,l_lbl,txt_hor,sp_rupt_top,sp_centre_ver,sp_rupt_bot,warn_lbl,set_surfSlip,btn_ok);
 
 %trigger calc_slip_distributions to output slip_distribution
-slip_distribution = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd);
+[slip_distribution,custom_slip_loaded] = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd,custom_slip_loaded);
 imagesc(slip_ax,slip_distribution)
 assignin("base", "slip_distribution", slip_distribution);
 end
