@@ -1,4 +1,4 @@
-function [slip_distribution,custom_slip_loaded] = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd,custom_slip_loaded)
+function slip_distribution = calc_slip_distributions(input_check,slip_distribution,x_points,y_points,z_points,grid_size,geometry,dip_depth,sl_centre_hor,sp_end,sp_start,sp_rupt_top,sp_centre_ver,sp_rupt_bot,set_surfSlip,set_maxSlip,sliptype_dd)
 % code to select and calculate slip distributions (functions below)
 
 %% fetch variables:
@@ -22,7 +22,7 @@ switch sliptype_dd.Value
     case 'Elongated bulls-eye (for strike-slip)'
         slip_distribution = slipdist_bulls_eye(false,start_slip,end_slip,rupt_top,rupt_bot,grid_size,max_slip,surf_slip,centre_hor,centre_ver,x_points,y_points,z_points,geometry,dip_depth);
     case 'Custom (csv-import)'
-        [slip_distribution,x_points,y_points,z_points,custom_slip_loaded] = slipdist_custom(x_points,y_points,z_points,custom_slip_loaded);
+        [slip_distribution,x_points,y_points,z_points] = slipdist_custom(x_points,y_points,z_points);
 end
 
 %% plot slip distribution preview
@@ -125,10 +125,7 @@ end
 %grid size of the 3D-Fault is adjusted to the number of rows/columns of the slip distribution
 %add zeros to the slip distribution to achieve partial rupture of a fault
 
-function [slip_distribution,x_points,y_points,z_points,custom_slip_loaded] = slipdist_custom(x_points,y_points,z_points,custom_slip_loaded)
-    if custom_slip_loaded == true
-        return
-    end
+function [slip_distribution,x_points,y_points,z_points] = slipdist_custom(x_points,y_points,z_points)
     [file,path] = uigetfile({'*.xlsx;*.xls','Excel Files (*.xlsx, *.xls)';'*.csv','csv file'; '*.*','All Files'}, 'Select csv or excel file');
     custom_slip = readmatrix(fullfile(path,file));
     if all(custom_slip(1,1:end) == 1:size(custom_slip,2))
@@ -144,7 +141,6 @@ function [slip_distribution,x_points,y_points,z_points,custom_slip_loaded] = sli
     z_points = interp2(X, Y, z_points, Xq, Vq, 'linear');
     end
     slip_distribution = custom_slip;
-    custom_slip_loaded = true;
     assignin('base',"x_points",x_points)
     assignin('base',"y_points",y_points)
     assignin('base',"z_points",z_points)

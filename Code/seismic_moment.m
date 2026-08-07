@@ -29,7 +29,9 @@ for r=1:length(slip_distribution(:,1))
             amo = amo + smo;
         end
         if slip > 0
-            rupture_area = rupture_area + (flength/1000 * wfault/1000);
+            if ~isnan(flength) && ~isnan(wfault)
+                rupture_area = rupture_area + (flength/1000 * wfault/1000);
+            end
             sum_slip = sum_slip + slip;
             num_patches = num_patches + 1;
         end
