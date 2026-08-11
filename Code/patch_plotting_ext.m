@@ -68,14 +68,10 @@ end
 if exp_geo_cb.Value == true
     %export geometry
     file = strcat(fault_name,'.csv');
-    if ~isfolder(strcat('Output_files/fault_geometry_',filename))
+    if ii == 1 && ~isfolder(strcat('Output_files/fault_geometry_',filename))
         mkdir('Output_files',strcat('fault_geometry_',filename))
-        path = strcat('Output_files/fault_geometry_',filename);
-        writematrix(xyz,fullfile(path,file))
-    else
-        if ii == 1
-            disp('Warning: Fault geometry folder already exists. Fault geometry not exported.')
-        end
     end
+    path = strcat('Output_files/fault_geometry_',filename);
+    writematrix(xyz,fullfile(path,file))
 end
 clearvars A T slip_dist x y z p xyz

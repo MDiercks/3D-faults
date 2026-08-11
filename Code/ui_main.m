@@ -55,8 +55,8 @@ update_plot_btn = uibutton(coord_pnl,'push','Text','update plot','Position',[150
 %plot button    
 btn = uibutton(fig,'push','Text','Build 3D Faults','Position',[1040, 612, 160, 40],'BackgroundColor',[.8 .3 .3],'FontWeight','bold','ButtonPushedFcn','model_3D_faults','FontSize',16);
 slipdist_dd = uidropdown(fig,'Position',[1040 591 160 20],'Items',{'coseismic','interseismic ("backslip")','interseismic ("shear zone")'});
-subplot_cb = uicheckbox(fig,'Position',[1040 565 200 20],'Value',true,'Text','Display entire network','Tooltip','Reduce computation time by only plotting the source fault. All faults are modelled.');
-exp_geo_cb = uicheckbox(fig,'Position',[1040 545 200 20],'Text','Export fault geometry','Value',false,'HandleVisibility','off');
+subplot_cb = uicheckbox(fig,'Position',[1040 565 140 20],'Value',true,'Text','Display entire network','Tooltip','Reduce computation time by only plotting the source fault. All faults are modelled.');
+exp_geo_cb = uicheckbox(fig,'Position',[1040 545 140 20],'Text','Export fault geometry','Value',false,'HandleVisibility','off');
 
 vardip = uitable(fig,'Visible','off','HandleVisibility','off'); %this table is just for storing variable dip values but is not shown in ui
 create_menu(fig,uit,vardip); %menu bar

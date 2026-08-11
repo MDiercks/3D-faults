@@ -50,6 +50,8 @@ end
 
 function onOK(backslip_fig)
     uiresume(backslip_fig);          % resume execution in the calling function
+    fprintf(strcat('Slip distribution exported with negative slip. For back slip calculation in Coulomb choose \n',...
+        'Functions >> Stress >> Calc. stress on Faults >> Coulomb for individual rake'))
 end
 
 %% radiobutton callback controlling UI elements
@@ -80,7 +82,7 @@ end
 % 'virtual negative displacements ('back-slip' method; Deng & Sykes, 1997)
 function [slip_distribution, backslip_ax] = slipdist_triangular(max_slip,x_points,backslip_ax,grid_size)
     slip_distribution=zeros(size(x_points) - [1 1]);
-    slip_rate = max_slip;
+    slip_rate = max_slip/1000; %converting to m
     half_len = linspace(0,slip_rate,round(size(slip_distribution,2)/2));
     comp_len = [half_len, flip(half_len)];
     if length(comp_len) > size(slip_distribution,2)
@@ -97,6 +99,9 @@ function [slip_distribution, backslip_ax] = slipdist_triangular(max_slip,x_point
     backslip_ax.XTickLabel = string(round(xt * grid_size));            % set new labels (string array)
     T=[1,1,1; 1,1,0; 1,0,0]; A=[0;1;2]; % white, yellow, red % Colour map for slip distribution
     colormap(backslip_ax,interp1(A,T,linspace(0,2,101)))
+    
+    %export slip distribution with negative values for back slip calculation via "Coulomb for individual rake"
+    slip_distribution = -slip_distribution;
     assignin("base", "slip_distribution", slip_distribution);
 end
 
@@ -107,10 +112,11 @@ function [slip_distribution, backslip_ax] = slipdist_custom(data,x_points,backsl
     xq = (1:size(slip_distribution,2)).*grid_size;
     nan_idx = any(isnan(table2array(data))')';
     data(nan_idx,:) = [];
-    x = table2array(data(:,1));
+    x = table2array(data(:,1)); %location
     x = unique([0; x; xq(end)]);
-    v = table2array(data(:,2));
+    v = table2array(data(:,2)); %slip
     v = [0; v; 0];
+    v = v./1000; %converting to m
     slip_row = interp1(x,v,xq);
     slip_distribution = repmat(slip_row, size(slip_distribution,1), 1);% replicate slip_row to fill all rows of slip_distribution
     
@@ -122,8 +128,10 @@ function [slip_distribution, backslip_ax] = slipdist_custom(data,x_points,backsl
     backslip_ax.XTickLabel = string(round(xt * grid_size));            % set new labels (string array)
     T=[1,1,1; 1,1,0; 1,0,0]; A=[0;1;2]; % white, yellow, red % Colour map for slip distribution
     colormap(backslip_ax,interp1(A,T,linspace(0,2,101)))
+    
+    %export slip distribution with negative values for back slip calculation via "Coulomb for individual rake"
+    slip_distribution = -slip_distribution;
     assignin("base", "slip_distribution", slip_distribution);
-
 end
 
 end
