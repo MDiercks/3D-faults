@@ -18,7 +18,7 @@ for r=1:length(x_points(:,1))-1
         end
         if subplot_cb.Value == true || faults.source_fault(ii) == true
             if faults.source_fault(ii) == true && max(slip_distribution(:)) < 0.1 %fix to adjust color scale for backslip slip distribution
-                patch(x,y,z,slip_distribution(r,c).*1000,'Parent',fax);
+                patch(x,y,z,abs(slip_distribution(r,c).*1000),'Parent',fax);
             else
                 patch(x,y,z,slip_distribution(r,c),'Parent',fax);
             end
@@ -49,10 +49,10 @@ if subplot_cb.Value == true || faults.source_fault(ii) == true
     colormap(fax,slip_dist);
 
     %determine colorbar limits
-    if max(slip_distribution(:)) > max_slip_total
-        max_slip_total = max(slip_distribution(:));
+    if max(abs(slip_distribution(:))) > max_slip_total
+        max_slip_total = max(abs(slip_distribution(:)));
     end
-    if faults.source_fault(ii) == true && max(slip_distribution(:)) > 0.1 %temporary fix to adjust colorbar for backslip slip distribution
+    if faults.source_fault(ii) == true && max(abs(slip_distribution(:))) > 0.1 %different color scales for coseismic and interseismic
         clim([0 max_slip_total]);
         cb = colorbar(fax,'southoutside');
         title(cb,'Total slip (m)');

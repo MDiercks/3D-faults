@@ -83,7 +83,8 @@ end
 function [slip_distribution, backslip_ax] = slipdist_triangular(max_slip,x_points,backslip_ax,grid_size)
     slip_distribution=zeros(size(x_points) - [1 1]);
     slip_rate = max_slip/1000; %converting to m
-    half_len = linspace(0,slip_rate,round(size(slip_distribution,2)/2));
+    % half_len = linspace(0,slip_rate,round(size(slip_distribution,2)/2));
+    half_len = linspace(0.05*slip_rate,slip_rate,round(size(slip_distribution,2)/2)); %instead of zero, patches at the margin receive 5% of the max slip
     comp_len = [half_len, flip(half_len)];
     if length(comp_len) > size(slip_distribution,2)
         comp_len(length(half_len)) = [];
